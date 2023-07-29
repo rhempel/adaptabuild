@@ -9,8 +9,8 @@ RUN groupadd --gid $USER_GID $USERNAME && \
     useradd --uid $USER_UID --gid $USER_GID -m $USERNAME
 
 # [Optional] Add sudo support. Omit if you don't need to install software after connecting.
-RUN apt-get update && \
-    apt-get install -y sudo && \
+RUN apt update && \
+    apt install -y sudo && \
     echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME && \
     chmod 0440 /etc/sudoers.d/$USERNAME
 
@@ -21,25 +21,19 @@ ENV TZ=Etc/EST
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get install -y tzdata \
-                       locales && \
+RUN apt install -y tzdata \
+                   locales && \
     sed -i -e "s/# $LANG.*/$LANG UTF-8/" /etc/locale.gen && \
     dpkg-reconfigure --frontend=noninteractive locales && \
     update-locale LANG=$LANG
 
-RUN apt-get update && \
-    apt install -y git \
-                   python3
+RUN apt install -y git=1:2.34.1-1ubuntu1.9 \
+                   python3=3.10.6-1~22.04 \
+                   build-essential=12.9ubuntu3 \
+                   gcc-arm-none-eabi=15:10.3-2021.07-4
 
-#                   build-essential \
-#                   gcc-arm-none-eabi
-
-# Make a new RUN for each app we need to install, then consolidate for final
-# machine build - speeds up rebuilds by re-using layers
-
-RUN apt-get update && \
-    apt install -y python3-pip \
-                    python3-sphinx
+RUN apt install -y python3-pip=22.0.2+dfsg-1ubuntu0.3 \
+                   python3-sphinx=4.3.2-1
 
 COPY requirements.txt /tmp/requirements.txt
 
@@ -69,4 +63,3 @@ RUN pip3 install -r /tmp/requirements.txt
 
 # [Optional] Set the default user. Omit if you want to keep the default as root.
 USER $USERNAME
-
