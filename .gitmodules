@@ -1,0 +1,3 @@
+[submodule "src/stm32f0xx_hal_driver"]
+	path = src/stm32f0xx_hal_driver
+	url = git@github.com:rhempel/stm32f0xx_hal_driver.git
