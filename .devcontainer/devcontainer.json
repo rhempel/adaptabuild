@@ -23,14 +23,28 @@
   },
 
   "runArgs": [
-//    "--privileged"
-// Figure out how to follow the symlink for *-mocrobit and include those devices
-//  "--device=/dev/tty-microbit",
+    "--privileged",
+//  "--device=/dev/stlinkv2-1_1",
 //  "--device=/dev/ttyACM0",
 //  "--device=/dev/hid-microbit"
 //  "--device=/dev/hidraw1"
   ],
-
+  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "marus25.cortex-debug",
+        "mcu-debug.debug-tracker-vscode",
+        "mcu-debug.memory-view",
+        "mcu-debug.rtos-views",
+        "mcu-debug.peripheral-viewer"
+      ],
+      "settings" : {
+//        "cortex-debug.gdbPath": "/usr/bin/gdb-multiarch",
+      }
+    }
+  },
 //"customizations": {
 //  // Configure properties specific to VS Code.
 //	"vscode": {
@@ -45,13 +59,18 @@
 //	  }
 // },
 
+// The workspace should later become /workspace, but we need to copy the .vscode folder
+// in there to get the launch.json and tasks.json visible
+//
   "workspaceMount": "source=adaptabuild-volume,target=/workspace,type=volume",
-  "workspaceFolder": "/workspace",
+  "workspaceFolder": "/host-workspace",
+//  "workspaceFolder": "/workspace",
 
   "mounts": [
       "source=${localWorkspaceFolder},target=/host-workspace,type=bind,consistency=cached",
-      "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/adaptabuild/.ssh,type=bind,consistency=cached"
+      "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/adaptabuild/.ssh,type=bind,consistency=cached",
   ],
+
 
 //"remoteEnv": { "PROJECT_FOLDER": "${localWorkspaceFolder}" }
 
