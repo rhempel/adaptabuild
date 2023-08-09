@@ -11,6 +11,8 @@
 # Add the $(MODULE)_ prefix to create a unique OBJPATH for this module
 # at build time
 
+include $(ADAPTABUILD_PATH)/make/adaptabuild_objects.mak
+
 $(MODULE)_OBJPATH := $(addprefix $(OBJ_PATH)/,$($(MODULE)_SRCPATH))
 
 # Force the creation of the build dircetory path(s) that are needed
@@ -71,7 +73,6 @@ include $($(MODULE)_DEP_OPT3)
 # all built from the same source but their object files are distinct.
 
 MODULE_LIBS += $(OBJ_PATH)/$(MODULE_PATH)/$(MODULE).a
-
 
 # This module library depends on the list of objects in $($(MODULE)_OBJ)
 # which is handled in module_objects.mak
