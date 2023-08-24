@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# module_objects.mak - support for building the objects infor a module
+# objects.mak - support for building the objects infor a module
 #
 # ----------------------------------------------------------------------------
 # Add the $(MODULE)_ prefix to create a unique INCPATH for this module

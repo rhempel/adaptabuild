@@ -1,14 +1,14 @@
 # ----------------------------------------------------------------------------
-# module_library.mak - support for building the library for a modukle
+# library.mak - support for building the library for a modukle
 #
 # This file is included at the end of every module level adaptabuild.mak
 # file, like this:
 #
-#   include adaptabuild/make/module_library.mak
+#   include $(ADAPTABUILD_PATH)/make/library.mak
 #
 # ----------------------------------------------------------------------------
 
-include $(ADAPTABUILD_PATH)/make/adaptabuild_objects.mak
+include $(ADAPTABUILD_PATH)/make/objects.mak
 
 # Add the $(MODULE)_ prefix to create a unique OBJPATH for this module
 # at build time
