@@ -4,18 +4,18 @@
 # This file is included at the end of every module level adaptabuild.mak
 # file, like this:
 #
-#   include adaptabuild/make/module_objects.mak
 #   include adaptabuild/make/module_library.mak
 #
 # ----------------------------------------------------------------------------
-# Add the $(MODULE)_ prefix to create a unique OBJPATH for this module
-# at build time
 
 include $(ADAPTABUILD_PATH)/make/adaptabuild_objects.mak
 
+# Add the $(MODULE)_ prefix to create a unique OBJPATH for this module
+# at build time
+
 $(MODULE)_OBJPATH := $(addprefix $(OBJ_PATH)/,$($(MODULE)_SRCPATH))
 
-# Force the creation of the build dircetory path(s) that are needed
+# Force the creation of the build directory path(s) that are needed
 # for this library
 
 $(shell $(MKPATH) $($(MODULE)_OBJPATH))
@@ -43,28 +43,29 @@ $(MODULE)_OBJ   := $(subst $(SRC_PATH),$(OBJ_PATH),\
 # the -M options (and some variants). It can even handle includes
 # in assembler files if they use the .S (upper case) suffiX.
 
-$(MODULE)_DEP := $(subst .o,.dep,$($(MODULE)_OBJ))
+$(MODULE)_DEP := $(subst .o,.d,$($(MODULE)_OBJ))
 
-include $($(MODULE)_DEP)
-
-# It is possible to set up unique object file suffixes for a group of
-# files - for example if we have a list of files that need to be compiled
-# with a specific optimization level, we can do something like this:
+# This is an example of a way to specify a specific kind of object
+# file option and compile time - in this case we want to compile
+# these objects with an optimization level of -o3 (OPT3) and
+# we need to add the correct dircetory prefixes and file type
+# suffixes
 
 $(MODULE)_SRC_OPT3 := $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C_OPT3))
 
 $(MODULE)_OBJ_OPT3 := $(subst $(SRC_PATH),$(OBJ_PATH),\
                         $(subst .c,.o_opt3,$($(MODULE)_SRC_OPT3)))
 
-$(MODULE)_DEP_OPT3 := $(subst .o_opt3,.dep_opt3,$($(MODULE)_OBJ_OPT3))
+# Transform the OPT3 files into dependencies and add them to the
+# dependencies list:
 
-include $($(MODULE)_DEP_OPT3)
+$(MODULE)_DEP += $(subst .o_opt3,.d,$($(MODULE)_OBJ_OPT3))
 
-# $(info  MODULE_OBJ is $($(MODULE)_OBJ))
-# $(info  MODULE_OBJ_OPT3 is $($(MODULE)_OBJ_OPT3))
-# $(info  MODULE_DEP is $($(MODULE)_DEP))
-# (info  MODULE_DEP_OPT3 is $($(MODULE)_DEP_OPT3))
+# The - in front of include is required to avoid a fatal error
+# because of the missing .d files - make will attempt to create
+# .o from .c in adaptabuld_objects.mak and the d file is a side-effect
 
+-include $($(MODULE)_DEP)
 
 # Add the module specific library to the list of modules that must
 # be built for the project. Note that we store the library with the
@@ -79,13 +80,5 @@ MODULE_LIBS += $(OBJ_PATH)/$(MODULE_PATH)/$(MODULE).a
 #
 $(OBJ_PATH)/$(MODULE_PATH)/$(MODULE).a : $($(MODULE)_OBJ) $($(MODULE)_OBJ_OPT3)
 	@$(AR) -r $@ $?
-
-# These includes stop the makefie processing and cuase the dependency files
-# to be created immediately - if these includes are placed before the
-# $(MODULE).a definition then the directories where the dependencies live
-# won't heve been created ...
-# 
-#include $($(MODULE)_DEP)
-#include $($(MODULE)_DEP_OPT3)
 
 # ----------------------------------------------------------------------------
