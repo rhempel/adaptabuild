@@ -37,14 +37,6 @@ $(MODULE)_OBJ   := $(subst $(SRC_PATH),$(OBJ_PATH),\
                        $(subst .s,.o,\
                          $(subst .S,.o,$($(MODULE)_SRC)))))
 
-# Transform the list of object files into a list of dependency files
-# that are created right next to the objects. Note that gcc has
-# an option to create include dependencies automagically using
-# the -M options (and some variants). It can even handle includes
-# in assembler files if they use the .S (upper case) suffiX.
-
-$(MODULE)_DEP := $(subst .o,.d,$($(MODULE)_OBJ))
-
 # This is an example of a way to specify a specific kind of object
 # file option and compile time - in this case we want to compile
 # these objects with an optimization level of -o3 (OPT3) and
@@ -56,10 +48,13 @@ $(MODULE)_SRC_OPT3 := $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C_OPT3))
 $(MODULE)_OBJ_OPT3 := $(subst $(SRC_PATH),$(OBJ_PATH),\
                         $(subst .c,.o_opt3,$($(MODULE)_SRC_OPT3)))
 
-# Transform the OPT3 files into dependencies and add them to the
-# dependencies list:
-
-$(MODULE)_DEP += $(subst .o_opt3,.d,$($(MODULE)_OBJ_OPT3))
+# Now transform the filenames ending in .c, .s, and .S into .d files so
+# that we have unique dependency filenames.
+#
+$(MODULE)_DEP   := $(subst $(SRC_PATH),$(OBJ_PATH),\
+                     $(subst .c,.d,\
+                       $(subst .s,.d,\
+                         $(subst .S,.d,$($(MODULE)_SRC $(MODULE)_SRC_OPT3)))))
 
 # The - in front of include is required to avoid a fatal error
 # because of the missing .d files - make will attempt to create
