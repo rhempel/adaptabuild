@@ -24,8 +24,16 @@ Welcome to the adaptabuild documentation!
 
    developers_setup_guide/developers_setup_guide
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Adaptabuild Developer's Guide
+   :hidden:
+
+   adaptabuild_developers_guide/adaptabuild_developers_guide
+
 - :doc:`Design Principles </design_principles/design_principles>`
 - :doc:`Developer's Setup Guide </developers_setup_guide/developers_setup_guide>`
+- :doc:`Adaptabuild Developer's Guide </adaptabuild_developers_guide/adaptabuild_developers_guide>`
 
 What is adaptabuild?
 ====================

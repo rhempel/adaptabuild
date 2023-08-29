@@ -7,7 +7,7 @@ For any product development effort, it is important to have guiding principles
 set out early in the process. This helps the team to make decisions, understand
 the purpose of the project, and to clarify why things are the way they are.
 
-The ``adaptabuild`` project has the following design principles:
+The |Product| project has the following design principles:
 
 - Simple now is better than complicated later
 - Automate the boring stuff
@@ -15,14 +15,15 @@ The ``adaptabuild`` project has the following design principles:
 - Build trust and transparency by using small steps
 - Check status frequently and make adjustments as needed
 
-Notice that there is no mention of specific tools or techniques here. We are
-trying to establish a set of values that reflect how we will develop a system,
+We do talk about specific tools or techniques here, but more importantly
+we are establishing a set of values that reflect how we will develop a system,
 and these values will also help us to make choices that improve outcomes
-for the project and the team.
+for the project and the team. If the tools change then they must support
+these values.
 
-Remember that ``adaptabuild`` is for *small* Cortex-M class microcontrollers
-and does not attempt to play in the same space as Yocto or similar tools for
-embedded Linux.
+Remember that |Product| is for *small* microcontrollers like the
+Cortex-M class or AVR devices that have gcc support and does not attempt
+to play in the same space as Yocto or similar tools for embedded Linux.
 
 Simple now is better than complicated later
 ===========================================
@@ -50,7 +51,7 @@ Options
 -------
 
 When deciding on tools, architectures, or even next steps to take in a
-projects, look for ways to simplify things as much as possible. Here are
+project, look for ways to simplify things as much as possible. Here are
 some examples:
 
 Vendor Supplied HAL
@@ -64,7 +65,7 @@ Docker Containers
   The days of running true virtual environments like VMWare or VirtualBox
   for firmware development are numbered. It made sense when the debugging
   tools were made by a company that went out of business and only supported
-  Windows 200 - thankfully modern Cortex-M class all use JTAG and are well
+  Windows 2000 - thankfully modern Cortex-M class all use JTAG and are well
   supported on Linux. For developers running Windows and MacOS we can now
   take advantage of Docker images to create a unified build environment
   that is exactly the same as your CI/CD pipeline will use. 
@@ -72,7 +73,7 @@ Docker Containers
 Python As The Scripting Language
   In the past I advocated for using ``bash`` or a similar shell Language
   for automating tasks, and that required installing Cygwin or MSYS2 on
-  WIndows machines or dealing with subtle differences in default shells.
+  Windows machines or dealing with subtle differences in default shells.
   There is simply no excuse anymore for not using Python 3.x as your
   standard scripting language, as long as you follow some basic rules to
   ensure your scripts are portable. 
@@ -107,8 +108,8 @@ a command lines to:
 - Build code coverage reports
 
 Your developers should be able to be confident that their unit tests cover
-90% of the functionality of your product, and that manual testing can be
-minimized to things that have changed.
+at least 90% of the functionality of your product, and that manual testing
+can be minimized.
 
 This is usually only possible when your design is truly decoupled into
 testable modules, and you are able to confidently say that a change in
@@ -136,7 +137,8 @@ VSCode (or VSCodium) as IDE
   - It has built in support for git
   - You can attach to a Docker container running your development
     environment
-  - You can debug Cortex-M micros in VSCode (yes really!)
+  - You can debug Cortex-M micros in VSCode attached to a Docker
+    container (yes really!)
   - You can run your builds from a command-line or as tasks
 
 GitLab pipelines or GitHub actions
@@ -230,8 +232,8 @@ Build trust and transparency by using small steps
 We have long since learned that most projects in the complex domain
 are difficult to estimate and plan accurately. Are we absolutely sure
 that the boards are going be delivered on that date? Is Kelly going
-to find a new job? What if the other must-win projects needs help
-in 6 months and we lose two developers?
+to quit and find a new job? What if the other must-win projects needs
+help in 6 months and we lose two developers?
 
 These are all things that could happen, and just adding buffer to the
 schedule isn't good enough, because it will *always* get eaten up.
@@ -249,7 +251,7 @@ seen as a team that is actively working to get better at what you do.
 
 Off Target Test Driven Development
   Don't waste time waiting for the prototype boards to arrive by
-  spending it doing detailed designes, estimates, and risk analysis.
+  spending it doing detailed designs, estimates, and risk analysis.
   Instead, work together with your team to create a design that is
   testable off-target. Practice doing TDD now, before you need to
   get prototype boards up and running.
@@ -262,13 +264,13 @@ Vendor Supplied Demo Boards
   Sometimes you will be able to use a vendor supplied board to get
   the core of your product and its variants up and running. Use
   this opportunity to iron out your development toolchain and git
-  processes. It's not going to be easier than now.
+  processes. It's not going to be easier later on.
 
 Use GitHub or Gitlab to host your Documentation
-  This document is written in ReStrucured Text and rendered in ability
-  pipeline using SPhinx. Your team should be able to automatically
-  deploy these documents and make them browsable for anyone that
-  needs to see what's going on.
+  This document is written in ReStrucured Text and rendered in a
+  build pipeline using SPhinx. Your team should be able to
+  automatically deploy these documents and make them browsable for
+  anyone that needs to see what's going on.
   
   That includes code coverage and unit test results. Most likely
   nobody will look at them outside your team, but you are sharing
@@ -281,3 +283,5 @@ trust back - but it's worth it.
 
 Check status frequently and make adjustments as needed
 ======================================================
+
+More on this later
