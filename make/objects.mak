@@ -5,7 +5,7 @@
 # Add the $(MODULE)_ prefix to create a unique INCPATH for this module
 # at build time
 
-$(MODULE)_INCPATH := $(addprefix -I $(SRC_PATH)/,$($(MODULE)_INCPATH))
+$(MODULE)_INCPATH := $(addprefix -I ,$($(MODULE)_INCPATH))
 
 # This is a rule to build an object file from a .c file - we take advantage
 # of make's ability to create variables for each object file at build time to
@@ -23,13 +23,16 @@ $(MODULE)_INCPATH := $(addprefix -I $(SRC_PATH)/,$($(MODULE)_INCPATH))
 $(OBJ_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH)
 $(OBJ_PATH)/$(MODULE_PATH)/%.o: CDEFS   := $(CDEFS) $($(MODULE)_CDEFS) $(local_cdefs)
 $(OBJ_PATH)/$(MODULE_PATH)/%.o: $(SRC_PATH)/$(MODULE_PATH)/%.c
-	@echo Building $@ from $(SRC_PATH)/$(MODULE_PATH)/$*.c
-	$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) -MP -MD -o $(@D)/$(*F).o $<
+	@echo
+	@echo Building $@ from $<
+	@echo $(@D)/$(*F).o
+	@echo
+	$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) -o $(@D)/$(*F).o $<
 
 $(OBJ_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH)
 $(OBJ_PATH)/$(MODULE_PATH)/%.o: CDEFS   := $(CDEFS) $($(MODULE)_CDEFS) $(local_cdefs)
 $(OBJ_PATH)/$(MODULE_PATH)/%.o: $(SRC_PATH)/$(MODULE_PATH)/%.s
-	@echo Building $@ from $(SRC_PATH)/$(MODULE_PATH)/$*.s
+	@echo Building $@ from $<
 	$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) -MP -MD -o $(@D)/$(*F).o $<
 
 $(OBJ_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH)
@@ -43,7 +46,7 @@ $(OBJ_PATH)/$(MODULE_PATH)/%.o: $(SRC_PATH)/$(MODULE_PATH)/%.S
 $(OBJ_PATH)/$(MODULE_PATH)/%.o_opt3: INCPATH := $($(MODULE)_INCPATH)
 $(OBJ_PATH)/$(MODULE_PATH)/%.o_opt3: CDEFS   := $(CDEFS) $($(MODULE)_CDEFS) $(local_cdefs)
 $(OBJ_PATH)/$(MODULE_PATH)/%.o_opt3: $(SRC_PATH)/$(MODULE_PATH)/%.c
-	@echo Building $@ from $(SRC_PATH)/$(MODULE_PATH)/$*.c
+	@echo Building $@ from $<
 	$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) -MP -MD -o $(@D)/$(*F).o_opt3 $<
 
 # ----------------------------------------------------------------------------	

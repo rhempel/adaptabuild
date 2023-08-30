@@ -13,7 +13,11 @@ include $(ADAPTABUILD_PATH)/make/objects.mak
 # Add the $(MODULE)_ prefix to create a unique OBJPATH for this module
 # at build time
 
-$(MODULE)_OBJPATH := $(addprefix $(OBJ_PATH)/,$($(MODULE)_SRCPATH))
+# $(MODULE)_OBJPATH := $(addprefix $(OBJ_PATH)/,$($(MODULE)_SRCPATH))
+
+#$(info  MODULE_OBJPATH is $($(MODULE)_OBJPATH))
+$(MODULE)_OBJPATH := $(subst $(SRC_PATH),$(OBJ_PATH),$($(MODULE)_SRCPATH))
+#$(info  MODULE_OBJPATH is $($(MODULE)_OBJPATH))
 
 # Force the creation of the build directory path(s) that are needed
 # for this library
@@ -37,6 +41,12 @@ $(MODULE)_OBJ   := $(subst $(SRC_PATH),$(OBJ_PATH),\
                        $(subst .s,.o,\
                          $(subst .S,.o,$($(MODULE)_SRC)))))
 
+#$(info  MODULE_OBJ is $($(MODULE)_OBJ))
+
+$(MODULE)_DEP := $(subst .o,.d,$($(MODULE)_OBJ))
+
+$(info  MODULE_DEP is $($(MODULE)_DEP))
+
 # This is an example of a way to specify a specific kind of object
 # file option and compile time - in this case we want to compile
 # these objects with an optimization level of -o3 (OPT3) and
@@ -48,19 +58,31 @@ $(MODULE)_SRC_OPT3 := $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C_OPT3))
 $(MODULE)_OBJ_OPT3 := $(subst $(SRC_PATH),$(OBJ_PATH),\
                         $(subst .c,.o_opt3,$($(MODULE)_SRC_OPT3)))
 
-# Now transform the filenames ending in .c, .s, and .S into .d files so
-# that we have unique dependency filenames.
-#
-$(MODULE)_DEP   := $(subst $(SRC_PATH),$(OBJ_PATH),\
-                     $(subst .c,.d,\
-                       $(subst .s,.d,\
-                         $(subst .S,.d,$($(MODULE)_SRC $(MODULE)_SRC_OPT3)))))
+$(MODULE)_DEP_OPT3 := $(subst .o_opt3,.d,$($(MODULE)_OBJ_OPT3))
+
+$(info  MODULE_DEP_OPT3 is $($(MODULE)_DEP_OPT3))
+
+# # Now transform the filenames ending in .c, .s, and .S into .d files so
+# # that we have unique dependency filenames.
+# #
+# 
+# $(MODULE)_DEP   := $(subst $(SRC_PATH),$(OBJ_PATH),\
+#                      $(subst .c,.d,\
+#                        $(subst .s,.d,\
+#                          $(subst .S,.d,$($(MODULE)_SRC $(MODULE)_SRC_OPT3)))))
+# 
+# $(info  MODULE_SRC is $($(MODULE)_SRC))
+# $(info  MODULE_SRC_OPT3 is $($(MODULE)_SRC_OPT3))
+# 
+# $(MODULE)_DEP := $(subst .o,.d,$(MODULE)_OBJ)
+# 
+# $(info  MODULE_DEP is $($(MODULE)_DEP))
 
 # The - in front of include is required to avoid a fatal error
 # because of the missing .d files - make will attempt to create
 # .o from .c in adaptabuld_objects.mak and the d file is a side-effect
 
--include $($(MODULE)_DEP)
+-include $(MODULE)_DEP $(MODULE)_DEP_OPT3
 
 # Add the module specific library to the list of modules that must
 # be built for the project. Note that we store the library with the
