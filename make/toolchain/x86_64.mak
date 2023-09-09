@@ -12,15 +12,6 @@ OBJCOPY = objcopy
 CFLAGS :=
 CFLAGS += -g
 
-ifeq (unittest,$(MAKECMDGOALS))
-
-  CFLAGS += -I/usr/include/CppUTest
-  CFLAGS += -I/usr/include/CppUTestExt
-
-  CFLAGS += -ftest-coverage -fprofile-arcs
-else
-endif
-
 CDEFS :=
 CDEFS += 
 

@@ -38,6 +38,14 @@ _ := $(shell $(MKPATH) $($(MODULE)_OBJPATH))
 $(MODULE)_SRC := $(addprefix _$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))
 $(MODULE)_SRC += $(addprefix _$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_ASM))
 
+$(info  41 src_c is $(SRC_C))
+$(info  41 src_test is $(SRC_TEST))
+ifeq (unittest,$(MAKECMDGOALS))
+  $(MODULE)_SRC += $(addprefix _$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_TEST))
+else
+endif
+$(info  46 module_src is $($(MODULE)_SRC))
+
 # Now transform the filenames ending in .c, .s, and .S into .o files so
 # that we have unique object filenames.
 #
