@@ -18,6 +18,27 @@ ifndef MCU
 endif
 
 # ----------------------------------------------------------------------------
+# Off-target unit testing
+# ----------------------------------------------------------------------------
+
+ifeq (unittest,$(MAKECMDGOALS))
+    $(info We are making unittests!)
+	override MCU := unittest
+
+    include $(ADAPTABUILD_PATH)/make/toolchain/x86_64.mak
+
+    MAKEFILE_DIR=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
+#    PROJECT_DIR=$(realpath $(MAKEFILE_DIR)..)
+#    TEST_DIR=$(PROJECT_DIR)/test
+    CPPUTEST_HOME=/usr/include/CppUTest
+
+    $(info MAKEFILE_DIR is $(MAKEFILE_DIR))
+#    $(info PROJECT_DIR is $(PROJECT_DIR))
+#    $(info TEST_DIR is $(TEST_DIR))
+    $(info CPPUTEST_HOME is $(CPPUTEST_HOME))
+endif
+
+# ----------------------------------------------------------------------------
 # STM32F051 Variants
 # ----------------------------------------------------------------------------
 

@@ -5,7 +5,11 @@
 # Add the $(MODULE)_ prefix to create unique compiler flags for this module
 # at build time
 
+$(info  MODULE_INCPATH is $($(MODULE)_INCPATH))
+
 $(MODULE)_INCPATH := $(addprefix -I ,$($(MODULE)_INCPATH))
+
+$(info  MODULE_INCPATH is $($(MODULE)_INCPATH))
 
 $(MODULE)_CDEFS := $(addprefix -D ,$($(MODULE)_CDEFS) $(CDEFS))
 
@@ -20,12 +24,15 @@ $(MODULE)_CFLAGS := $($(MODULE)_CFLAGS) $(CFLAGS)
 # create another code block like this with the correct object and source suffixes
 # and modufy the build command as needed.
 
+$(info  27 src_path/module_path is $(SRC_PATH)/$(MODULE_PATH))
+$(info  28 obj_path/module_path is $(OBJ_PATH)/$(MODULE_PATH))
+
 $(OBJ_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH)
 $(OBJ_PATH)/$(MODULE_PATH)/%.o: CDEFS   := $($(MODULE)_CDEFS)
 $(OBJ_PATH)/$(MODULE_PATH)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
 $(OBJ_PATH)/$(MODULE_PATH)/%.o: $(SRC_PATH)/$(MODULE_PATH)/%.c
 	@echo Building $@ from $<
-	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) -o $@ $<
+	$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) -o $@ $<
 
 $(OBJ_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH)
 $(OBJ_PATH)/$(MODULE_PATH)/%.o: CDEFS   := $($(MODULE)_CDEFS)

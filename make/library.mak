@@ -12,26 +12,41 @@ include $(ADAPTABUILD_PATH)/make/objects.mak
 # Add the $(MODULE)_ prefix to create a unique OBJPATH for this module
 # at build time
 
-$(MODULE)_OBJPATH := $(subst $(SRC_PATH),$(OBJ_PATH),$($(MODULE)_SRCPATH))
+# Note the trick of adding a _ (underscore) at the front of each element
+# in the SRC_PATH - this is to prevent a $(MODULE)_SRCPATH)) like:
+#   src/module/src/foo.c
+# from having BOTH occurences of src substituted!
+
+$(MODULE)_SRCPATH := $(addprefix _,$($(MODULE)_SRCPATH))
+
+$(MODULE)_OBJPATH := $(subst _$(SRC_PATH),$(OBJ_PATH),$($(MODULE)_SRCPATH))
 
 # Force the creation of the build directory path(s) that are needed
 # for this library
+
+# What about something like:
+#
+# $(OBJ_PATH)/$(MODULE_PATH)/$(MODULE).a : $($(MODULE)_OBJPATH))
+# $($(MODULE)_OBJPATH)):
+#     $(MKPATH) $($(MODULE)_OBJPATH))
 
 _ := $(shell $(MKPATH) $($(MODULE)_OBJPATH))
 
 # Add the $(MODULE)_ prefix to create a unique source filename
 # for the c and assembler files in this module.
 
-$(MODULE)_SRC := $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))
-$(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_ASM))
+$(MODULE)_SRC := $(addprefix _$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))
+$(MODULE)_SRC += $(addprefix _$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_ASM))
 
 # Now transform the filenames ending in .c, .s, and .S into .o files so
 # that we have unique object filenames.
 #
 # This allows us to generate and objects, libraries, and other artifacts
 # separately from the source tree.
+#
+# See the note above about the _ (underscore) trick when substituting
 
-$(MODULE)_OBJ   := $(subst $(SRC_PATH),$(OBJ_PATH),\
+$(MODULE)_OBJ   := $(subst _$(SRC_PATH),$(OBJ_PATH),\
                      $(subst .c,.o,\
                        $(subst .s,.o,\
                          $(subst .S,.o,$($(MODULE)_SRC)))))
