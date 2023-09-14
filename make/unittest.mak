@@ -18,7 +18,7 @@ endif
 # at build time
 
 $(info  unittest.mak SRC_PATH is $(SRC_PATH))
-$(info  unittest.mak OBJ_PATH is $(OBJ_PATH))
+$(info  unittest.mak BUILD_PATH is $(BUILD_PATH))
 $(info  unittest.mak MODULE_TESTPATH is $($(MODULE)_TESTPATH))
 
 # !!! Not needed as libabry.mak already does this work - consider encapsulating
@@ -29,7 +29,7 @@ $(info  unittest.mak MODULE_TESTPATH is $($(MODULE)_TESTPATH))
 #   src/module/src
 # from having BOTH occurences of src substituted!
 #
-$(MODULE)_OBJPATH := $(subst _$(SRC_PATH),$(OBJ_PATH),$($(MODULE)_SRCPATH))
+$(MODULE)_OBJPATH := $(subst _$(SRC_PATH),$(BUILD_PATH),$($(MODULE)_SRCPATH))
 
 $(info  MODULE_OBJPATH is $($(MODULE)_OBJPATH))
 
@@ -41,7 +41,7 @@ $(info  MODULE_OBJPATH is $($(MODULE)_OBJPATH))
 $($(MODULE)_OBJPATH):
 	$(MKPATH) $($(MODULE)_OBJPATH)
 
-$(OBJ_PATH)/$(MODULE_PATH)/$(MODULE)_test.a :: $($(MODULE)_OBJPATH)
+$(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test.a :: $($(MODULE)_OBJPATH)
 	$(echo Making directories ...)
 
 # Add the $(MODULE)_ prefix to create a unique source filename
@@ -60,7 +60,7 @@ $(info  $(MODULE)_TEST_SRC is $($(MODULE)_TEST_SRC))
 #
 # See the note above about the _ (underscore) trick when substituting
 
-$(MODULE)_TEST_OBJ := $(subst _$(SRC_PATH),$(OBJ_PATH),\
+$(MODULE)_TEST_OBJ := $(subst _$(SRC_PATH),$(BUILD_PATH),\
                        $(subst .c,.o,\
                          $(subst .s,.o,\
                            $(subst .S,.o,$($(MODULE)_TEST_SRC)))))
@@ -77,13 +77,13 @@ $(info  $(MODULE)_TEST_DEP is $($(MODULE)_TEST_DEP))
 # allows us to build multiple projects and guarantee that they are
 # all built from the same source but their object files are distinct.
 
-MODULE_TEST_LIBS += $(OBJ_PATH)/$(MODULE_PATH)/$(MODULE)_test.a
+MODULE_TEST_LIBS += $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test.a
 
 # This module library depends on the list of objects in $($(MODULE)_OBJ)
 # which is handled in module_objects.mak
 
-# $(OBJ_PATH)/$(MODULE_PATH)/$(MODULE).a : $($(MODULE)_OBJ) $($(MODULE)_OBJ_OPT3)
-$(OBJ_PATH)/$(MODULE_PATH)/$(MODULE)_test.a :: $($(MODULE)_TEST_OBJ) $($(MODULE)_TEST_OBJ_OPT3)
+# $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE).a : $($(MODULE)_OBJ) $($(MODULE)_OBJ_OPT3)
+$(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test.a :: $($(MODULE)_TEST_OBJ) $($(MODULE)_TEST_OBJ_OPT3)
 	@echo Building $@
 	@$(AR) -cr $@ $?
  

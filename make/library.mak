@@ -19,14 +19,14 @@ include $(ADAPTABUILD_PATH)/make/objects.mak
 
 $(MODULE)_SRCPATH := $(addprefix _,$($(MODULE)_SRCPATH))
 
-$(MODULE)_OBJPATH := $(subst _$(SRC_PATH),$(OBJ_PATH),$($(MODULE)_SRCPATH))
+$(MODULE)_OBJPATH := $(subst _$(SRC_PATH),$(BUILD_PATH),$($(MODULE)_SRCPATH))
 
 # Force the creation of the build directory path(s) that are needed
 # for this library
 
 # What about something like:
 #
-# $(OBJ_PATH)/$(MODULE_PATH)/$(MODULE).a : $($(MODULE)_OBJPATH))
+# $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE).a : $($(MODULE)_OBJPATH))
 # $($(MODULE)_OBJPATH)):
 #     $(MKPATH) $($(MODULE)_OBJPATH))
 
@@ -54,7 +54,7 @@ $(info  46 module_src is $($(MODULE)_SRC))
 #
 # See the note above about the _ (underscore) trick when substituting
 
-$(MODULE)_OBJ   := $(subst _$(SRC_PATH),$(OBJ_PATH),\
+$(MODULE)_OBJ   := $(subst _$(SRC_PATH),$(BUILD_PATH),\
                      $(subst .c,.o,\
                        $(subst .s,.o,\
                          $(subst .S,.o,$($(MODULE)_SRC)))))
@@ -69,7 +69,7 @@ $(MODULE)_DEP := $(subst .o,.d,$($(MODULE)_OBJ))
 
 $(MODULE)_SRC_OPT3 := $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C_OPT3))
 
-$(MODULE)_OBJ_OPT3 := $(subst $(SRC_PATH),$(OBJ_PATH),\
+$(MODULE)_OBJ_OPT3 := $(subst $(SRC_PATH),$(BUILD_PATH),\
                         $(subst .c,.o_opt3,$($(MODULE)_SRC_OPT3)))
 
 $(MODULE)_DEP_OPT3 := $(subst .o_opt3,.d,$($(MODULE)_OBJ_OPT3))
@@ -82,12 +82,12 @@ $(MODULE)_DEP_OPT3 := $(subst .o_opt3,.d,$($(MODULE)_OBJ_OPT3))
 # allows us to build multiple projects and guarantee that they are
 # all built from the same source but their object files are distinct.
 
-MODULE_LIBS += $(OBJ_PATH)/$(MODULE_PATH)/$(MODULE).a
+MODULE_LIBS += $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE).a
 
 # This module library depends on the list of objects in $($(MODULE)_OBJ)
 # which is handled in module_objects.mak
 
-$(OBJ_PATH)/$(MODULE_PATH)/$(MODULE).a : $($(MODULE)_OBJ) $($(MODULE)_OBJ_OPT3)
+$(BUILD_PATH)/$(MODULE_PATH)/$(MODULE).a : $($(MODULE)_OBJ) $($(MODULE)_OBJ_OPT3)
 	@echo Building $@
 	@$(AR) -cr $@ $?
  
