@@ -13,11 +13,7 @@ ifeq (unittest,$(MAKECMDGOALS))
 else
 endif
 
-$(info  MODULE_INCPATH is $($(MODULE)_INCPATH))
-
 $(MODULE)_INCPATH := $(addprefix -I ,$($(MODULE)_INCPATH))
-
-$(info  MODULE_INCPATH is $($(MODULE)_INCPATH))
 
 $(MODULE)_CDEFS := $(addprefix -D ,$($(MODULE)_CDEFS) $(CDEFS))
 
@@ -32,14 +28,17 @@ $(MODULE)_CFLAGS := $($(MODULE)_CFLAGS) $(CFLAGS)
 # create another code block like this with the correct object and source suffixes
 # and modufy the build command as needed.
 
-$(info  30 src_path/module_path is $(SRC_PATH)/$(MODULE_PATH))
-$(info  31 BUILD_PATH/module_path is $(BUILD_PATH)/$(MODULE_PATH))
-$(info  31 COV_FLAGS is $(COVFLAGS))
-
 $(BUILD_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH)
 $(BUILD_PATH)/$(MODULE_PATH)/%.o: CDEFS   := $($(MODULE)_CDEFS)
 $(BUILD_PATH)/$(MODULE_PATH)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
 $(BUILD_PATH)/$(MODULE_PATH)/%.o: $(SRC_PATH)/$(MODULE_PATH)/%.c
+	@echo Building $@ from $<
+	$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+
+$(BUILD_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH)
+$(BUILD_PATH)/$(MODULE_PATH)/%.o: CDEFS   := $($(MODULE)_CDEFS)
+$(BUILD_PATH)/$(MODULE_PATH)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
+$(BUILD_PATH)/$(MODULE_PATH)/%.o: $(SRC_PATH)/$(MODULE_PATH)/%.C
 	@echo Building $@ from $<
 	$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
@@ -68,9 +67,6 @@ $(BUILD_PATH)/$(MODULE_PATH)/%.o_opt3: $(SRC_PATH)/$(MODULE_PATH)/%.c
 
 # Special support for building test sources with different flags
 
-$(info  65 test_src_path/module_path is $($(MODULE)_TEST_SRCPATH))
-$(info  66 test_obj_path/module_path is $($(MODULE)_TEST_BUILDPATH))
-
 $($(MODULE)_TEST_BUILDPATH)/%.o: INCPATH := $($(MODULE)_INCPATH) -I/usr/include/CppUTest -I/usr/include/CppUTestExt
 $($(MODULE)_TEST_BUILDPATH)/%.o: CDEFS   := $($(MODULE)_CDEFS)
 $($(MODULE)_TEST_BUILDPATH)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
@@ -78,7 +74,4 @@ $($(MODULE)_TEST_BUILDPATH)/%.o: $($(MODULE)_TEST_SRCPATH)/%.c
 	@echo Building $@ from $<
 	$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) -o $@ $<
 
-# ----------------------------------------------------------------------------	
-
-
-# ----------------------------------------------------------------------------	
+# ----------------------------------------------------------------------------

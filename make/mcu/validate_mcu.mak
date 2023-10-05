@@ -28,14 +28,7 @@ ifeq (unittest,$(MAKECMDGOALS))
     include $(ADAPTABUILD_PATH)/make/toolchain/x86_64.mak
 
     MAKEFILE_DIR=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
-#    PROJECT_DIR=$(realpath $(MAKEFILE_DIR)..)
-#    TEST_DIR=$(PROJECT_DIR)/test
     CPPUTEST_HOME=/usr/include/CppUTest
-
-    $(info MAKEFILE_DIR is $(MAKEFILE_DIR))
-#    $(info PROJECT_DIR is $(PROJECT_DIR))
-#    $(info TEST_DIR is $(TEST_DIR))
-    $(info CPPUTEST_HOME is $(CPPUTEST_HOME))
 endif
 
 # ----------------------------------------------------------------------------
@@ -76,4 +69,24 @@ ifneq ($(filter $(MCU),$(MCU_LIST)),)
 	MCU_MAK += $(SRC_PATH)/cmsis_device_f0/adaptabuild.mak
 endif
 
+# ----------------------------------------------------------------------------
+# STM32H7 Variants
+# ----------------------------------------------------------------------------
 
+MCU_LIST := STM32H7B3
+MCU_LIST +=
+
+ifneq ($(filter $(MCU),$(MCU_LIST)),)
+    MCU_FAMILY := STM32H7B3xx
+    MCU_VARIANT := STM32H7B3xx
+    MCU_ARCH := cortex-m7
+
+    CFLAGS += -mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-d16
+
+	include $(ADAPTABUILD_PATH)/make/toolchain/arm-none-eabi.mak
+
+# TODO: Add a project level variable to set the location of the HAL
+#       makefile, or take it out of here completely
+
+	MCU_MAK += $(SRC_PATH)/HAL/adaptabuild.mak
+endif

@@ -29,6 +29,7 @@ $(MODULE)_OBJPATH := $(subst _$(SRC_PATH),$(BUILD_PATH),$($(MODULE)_SRCPATH))
 # $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE).a : $($(MODULE)_OBJPATH))
 # $($(MODULE)_OBJPATH)):
 #     $(MKPATH) $($(MODULE)_OBJPATH))
+$(info Forcing creation of: $($(MODULE)_OBJPATH))
 
 _ := $(shell $(MKPATH) $($(MODULE)_OBJPATH))
 
@@ -38,13 +39,10 @@ _ := $(shell $(MKPATH) $($(MODULE)_OBJPATH))
 $(MODULE)_SRC := $(addprefix _$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))
 $(MODULE)_SRC += $(addprefix _$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_ASM))
 
-$(info  41 src_c is $(SRC_C))
-$(info  41 src_test is $(SRC_TEST))
 ifeq (unittest,$(MAKECMDGOALS))
   $(MODULE)_SRC += $(addprefix _$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_TEST))
 else
 endif
-$(info  46 module_src is $($(MODULE)_SRC))
 
 # Now transform the filenames ending in .c, .s, and .S into .o files so
 # that we have unique object filenames.
@@ -56,8 +54,9 @@ $(info  46 module_src is $($(MODULE)_SRC))
 
 $(MODULE)_OBJ   := $(subst _$(SRC_PATH),$(BUILD_PATH),\
                      $(subst .c,.o,\
-                       $(subst .s,.o,\
-                         $(subst .S,.o,$($(MODULE)_SRC)))))
+                       $(subst .C,.o,\
+                         $(subst .s,.o,\
+                           $(subst .S,.o,$($(MODULE)_SRC))))))
 
 $(MODULE)_DEP := $(subst .o,.d,$($(MODULE)_OBJ))
 
