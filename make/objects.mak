@@ -45,7 +45,7 @@ $(BUILD_PATH)/$(MODULE_PATH)/%.o: $(SRC_PATH)/$(MODULE_PATH)/%.c
 	@echo Building $@ from $<
 	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH) fibblesnort
+$(BUILD_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH)
 $(BUILD_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH) 
 $(BUILD_PATH)/$(MODULE_PATH)/%.o: CDEFS   := $($(MODULE)_CDEFS)
 $(BUILD_PATH)/$(MODULE_PATH)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
@@ -78,11 +78,11 @@ $(BUILD_PATH)/$(MODULE_PATH)/%.o_opt3: $(SRC_PATH)/$(MODULE_PATH)/%.c
 
 # Special support for building test sources with different flags
 
-$($(MODULE)_TEST_BUILDPATH)/%.o: INCPATH := $($(MODULE)_INCPATH) -I/usr/include/CppUTest -I/usr/include/CppUTestExt
+$($(MODULE)_TEST_BUILDPATH)/%.o: INCPATH := $($(MODULE)_INCPATH)
 $($(MODULE)_TEST_BUILDPATH)/%.o: CDEFS   := $($(MODULE)_CDEFS)
 $($(MODULE)_TEST_BUILDPATH)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
 $($(MODULE)_TEST_BUILDPATH)/%.o: $($(MODULE)_TEST_SRCPATH)/%.c
 	@echo Building $@ from $<
-	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) -o $@ $<
+	$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) -o $@ $<
 
 # ----------------------------------------------------------------------------
