@@ -73,6 +73,26 @@ endif
 # STM32H7 Variants
 # ----------------------------------------------------------------------------
 
+MCU_LIST := STM32H723xx STM32H725xx
+MCU_LIST += STM32H730xx STM32H730xxQ
+MCU_LIST += STM32H733xx STM32H735xx
+MCU_LIST += STM32H742xx STM32H743xx  STM32H745xx
+MCU_LIST += STM32H745xG STM32H747xx  STM32H747xG
+MCU_LIST += STM32H750xx STM32H753xx  STM32H755xx STM32H757xx
+MCU_LIST += STM32H7A3xx STM32H7A3xxQ
+MCU_LIST += STM32H7B3xx STM32H7B3xxQ STM32H7B0xx STM32H7B0xxQ
+
+ifneq ($(filter $(MCU),$(MCU_LIST)),)
+    MCU_FAMILY := STM32H7xx
+    MCU_VARIANT := STM32H7A3xxQ
+    MCU_ARCH := cortex-m7
+
+	include $(ADAPTABUILD_PATH)/make/toolchain/arm-none-eabi.mak
+
+	MCU_MAK += $(SRC_PATH)/stm32h7xx_hal_driver/adaptabuild.mak
+	MCU_MAK += $(SRC_PATH)/cmsis_device_h7/adaptabuild.mak
+endif
+
 MCU_LIST := STM32H7B3
 MCU_LIST +=
 
