@@ -13,13 +13,14 @@ ifeq (unittest,$(MAKECMDGOALS))
 else
 endif
 
-$(MODULE)_INCPATH := $(addprefix -I $(ROOT_PATH)/$(MODULE_PATH)/,$($(MODULE)_INCPATH))
-# $(info $(MODULE)_INCPATH is $($(MODULE)_INCPATH))
+$(info $(MODULE)_INCPATH is $($(MODULE)_INCPATH))
+$(MODULE)_INCPATH := $(addprefix -I $(ROOT_PATH)/$(SRC_PATH)/,$($(MODULE)_INCPATH))
+$(info $(MODULE)_INCPATH is $($(MODULE)_INCPATH))
 
-$(MODULE)_ROOT_INCPATH := $(addprefix -I $(ROOT_PATH)/,$($(MODULE)_ROOT_INCPATH))
+# $(MODULE)_ROOT_INCPATH := $(addprefix -I $(ROOT_PATH)/,$($(MODULE)_ROOT_INCPATH))
 # $(info $(MODULE)_ROOT_INCPATH is $($(MODULE)_ROOT_INCPATH))
 
-$(MODULE)_INCPATH := $($(MODULE)_INCPATH) $($(MODULE)_ROOT_INCPATH)
+# $(MODULE)_INCPATH := $($(MODULE)_INCPATH) $($(MODULE)_ROOT_INCPATH)
 
 $(MODULE)_CDEFS := $(addprefix -D ,$($(MODULE)_CDEFS) $(CDEFS))
 # $(info $(MODULE)_CDEFS is $($(MODULE)_CDEFS))
@@ -34,45 +35,66 @@ $(MODULE)_CFLAGS := $($(MODULE)_CFLAGS) $(CFLAGS)
 #
 # If you need to create an object file from some other input file type then
 # create another code block like this with the correct object and source suffixes
-# and modufy the build command as needed.
+# and modify the build command as needed.
+#
+# The rules below rely on the concept of stems - these are the paths in
+# front of the base target and dependency names that make uses to figure
+# out how to build a file.
+#
+# For example:
+#
+# path/to/build/output/foo.o
+# some/other/path/to/src/foo.c
+#
+# We could rewrite this as follows:
+#
+# TARGET_STEM := path/to/build/output
+# PREREQ_STEM := some/other/path/to/src
+# 
+# $(TARGET_STEM)/foo.o
+# $(PREREQ_STEM)/foo.c
+#----------------------------------------------------------------------------
 
-# $(info SRC_PATH/MODULE_PATH is $(SRC_PATH)/$(MODULE_PATH))
+TARGET_STEM := $(ROOT_PATH)/$(BUILD_PATH)/$(MODULE_PATH)
+PREREQ_STEM := $(ROOT_PATH)/$(SRC_PATH)/$(MODULE_PATH)
 
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH) 
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: CDEFS   := $($(MODULE)_CDEFS)
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: $(SRC_PATH)/$(MODULE_PATH)/%.c
+$(info TARGET_STEM is $(TARGET_STEM))
+$(info PREREQ_STEM is $(PREREQ_STEM))
+
+$(TARGET_STEM)/%.o: INCPATH := $($(MODULE)_INCPATH) 
+$(TARGET_STEM)/%.o: CDEFS   := $($(MODULE)_CDEFS)
+$(TARGET_STEM)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
+$(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.c
+	@echo Building $@ from $<
+	$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+
+$(TARGET_STEM)/%.o: INCPATH := $($(MODULE)_INCPATH) 
+$(TARGET_STEM)/%.o: CDEFS   := $($(MODULE)_CDEFS)
+$(TARGET_STEM)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
+$(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.C
 	@echo Building $@ from $<
 	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH)
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH) 
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: CDEFS   := $($(MODULE)_CDEFS)
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: $(SRC_PATH)/$(MODULE_PATH)/%.C
-	@echo Building $@ from $<
-	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
-
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH)
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: CDEFS   := $($(MODULE)_CDEFS)
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: $(SRC_PATH)/$(MODULE_PATH)/%.s
+$(TARGET_STEM)/%.o: INCPATH := $($(MODULE)_INCPATH) 
+$(TARGET_STEM)/%.o: CDEFS   := $($(MODULE)_CDEFS)
+$(TARGET_STEM)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
+$(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.s
 	@echo Building $@ from $<
 	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COV_FLAGS) -o $@ $<
 
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH)
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: CDEFS   := $($(MODULE)_CDEFS)
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: $(SRC_PATH)/$(MODULE_PATH)/%.S
+$(TARGET_STEM)/%.o: INCPATH := $($(MODULE)_INCPATH) 
+$(TARGET_STEM)/%.o: CDEFS   := $($(MODULE)_CDEFS)
+$(TARGET_STEM)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
+$(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.S
 	@echo Building $@ from $<
 	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COV_FLAGS) -o $@ $<
 
 # Special handling for _OPT3 objects ...
 
-$(BUILD_PATH)/$(MODULE_PATH)/%.o_opt3: INCPATH := $($(MODULE)_INCPATH)
-$(BUILD_PATH)/$(MODULE_PATH)/%.o_opt3: CDEFS   := $($(MODULE)_CDEFS)
-$(BUILD_PATH)/$(MODULE_PATH)/%.o_opt3: CFLAGS  := $($(MODULE)_CFLAGS)
-$(BUILD_PATH)/$(MODULE_PATH)/%.o_opt3: $(SRC_PATH)/$(MODULE_PATH)/%.c
+$(TARGET_STEM)/%.o_opt3: INCPATH := $($(MODULE)_INCPATH)
+$(TARGET_STEM)/%.o_opt3: CDEFS   := $($(MODULE)_CDEFS)
+$(TARGET_STEM)/%.o_opt3: CFLAGS  := $($(MODULE)_CFLAGS)
+$(TARGET_STEM)/%.o_opt3: $(PREREQ_STEM)/%.c
 	@echo Building $@ from $<
 	@$(CC) -c -o3 $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COV_FLAGS) -o $@ $<
 
