@@ -13,14 +13,8 @@ ifeq (unittest,$(MAKECMDGOALS))
 else
 endif
 
-$(info $(MODULE)_INCPATH is $($(MODULE)_INCPATH))
 $(MODULE)_INCPATH := $(addprefix -I $(ROOT_PATH)/$(SRC_PATH)/,$($(MODULE)_INCPATH))
-$(info $(MODULE)_INCPATH is $($(MODULE)_INCPATH))
-
-# $(MODULE)_ROOT_INCPATH := $(addprefix -I $(ROOT_PATH)/,$($(MODULE)_ROOT_INCPATH))
-# $(info $(MODULE)_ROOT_INCPATH is $($(MODULE)_ROOT_INCPATH))
-
-# $(MODULE)_INCPATH := $($(MODULE)_INCPATH) $($(MODULE)_ROOT_INCPATH)
+# $(info $(MODULE)_INCPATH is $($(MODULE)_INCPATH))
 
 $(MODULE)_CDEFS := $(addprefix -D ,$($(MODULE)_CDEFS) $(CDEFS))
 # $(info $(MODULE)_CDEFS is $($(MODULE)_CDEFS))
@@ -56,17 +50,17 @@ $(MODULE)_CFLAGS := $($(MODULE)_CFLAGS) $(CFLAGS)
 #----------------------------------------------------------------------------
 
 TARGET_STEM := $(ROOT_PATH)/$(BUILD_PATH)/$(MODULE_PATH)
-PREREQ_STEM := $(ROOT_PATH)/$(SRC_PATH)/$(MODULE_PATH)
+# $(info TARGET_STEM is $(TARGET_STEM))
 
-$(info TARGET_STEM is $(TARGET_STEM))
-$(info PREREQ_STEM is $(PREREQ_STEM))
+PREREQ_STEM := $(ROOT_PATH)/$(SRC_PATH)/$(MODULE_PATH)
+# $(info PREREQ_STEM is $(PREREQ_STEM))
 
 $(TARGET_STEM)/%.o: INCPATH := $($(MODULE)_INCPATH) 
 $(TARGET_STEM)/%.o: CDEFS   := $($(MODULE)_CDEFS)
 $(TARGET_STEM)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.c
 	@echo Building $@ from $<
-	$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 $(TARGET_STEM)/%.o: INCPATH := $($(MODULE)_INCPATH) 
 $(TARGET_STEM)/%.o: CDEFS   := $($(MODULE)_CDEFS)
@@ -105,6 +99,6 @@ $($(MODULE)_TEST_BUILDPATH)/%.o: CDEFS   := $($(MODULE)_CDEFS)
 $($(MODULE)_TEST_BUILDPATH)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
 $($(MODULE)_TEST_BUILDPATH)/%.o: $($(MODULE)_TEST_SRCPATH)/%.c
 	@echo Building $@ from $<
-	$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) -o $@ $<
+	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) -o $@ $<
 
 # ----------------------------------------------------------------------------

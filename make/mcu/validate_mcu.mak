@@ -22,7 +22,6 @@ endif
 # ----------------------------------------------------------------------------
 
 ifeq (unittest,$(MAKECMDGOALS))
-    $(info We are making unittests!)
 	override MCU := unittest
 
     include $(ADAPTABUILD_PATH)/make/toolchain/x86_64.mak

@@ -86,7 +86,7 @@ GNU make As The Build System
   the supporting makefiles that most developers never need to touch.
 
 The key to chosing simple over complicated is that you get started on the
-learning path more quickly so that you can make adjustments sooner.  
+learning path more quickly so that you can make adjustments sooner.
 
 Automate the boring stuff
 =========================
@@ -131,7 +131,7 @@ VSCode (or VSCodium) as IDE
   As a long time ``vi`` user and being generally disappointed with
   vendor supplied IDEs, I was surprised to be relatively happy with
   VSCode:
-  
+
   - It doesn't force you to use vendor specific project file
     structures that may not match your actual file structure.
   - It has built in support for git
@@ -271,7 +271,7 @@ Use GitHub or Gitlab to host your Documentation
   build pipeline using SPhinx. Your team should be able to
   automatically deploy these documents and make them browsable for
   anyone that needs to see what's going on.
-  
+
   That includes code coverage and unit test results. Most likely
   nobody will look at them outside your team, but you are sharing
   them openly and they don't take any time or thought to create
