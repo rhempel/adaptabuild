@@ -7,6 +7,11 @@
 #   include $(ADAPTABUILD_PATH)/make/library.mak
 # ----------------------------------------------------------------------------
 
+ifeq (unittest,$(MAKECMDGOALS))
+  COVFLAGS := -ftest-coverage -fprofile-arcs
+else
+endif
+
 include $(ADAPTABUILD_PATH)/make/objects.mak
 
 $(MODULE)_OBJPATH := $(addprefix $(ROOT_PATH)/$(BUILD_PATH)/,$($(MODULE)_SRCPATH))
@@ -21,8 +26,9 @@ _ := $(shell $(MKPATH) $($(MODULE)_OBJPATH))
 $(MODULE)_SRC :=
 $(MODULE)_SRC += $(addprefix $(ROOT_PATH)/$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))
 $(MODULE)_SRC += $(addprefix $(ROOT_PATH)/$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_ASM))
+
 ifeq (unittest,$(MAKECMDGOALS))
-$(MODULE)_SRC += $(addprefix $(ROOT_PATH)/$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_TEST))
+  $(MODULE)_SRC += $(addprefix $(ROOT_PATH)/$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_TEST))
 else
 endif
 
@@ -34,9 +40,10 @@ endif
 
 $(MODULE)_OBJ   := $(subst $(ROOT_PATH)/$(SRC_PATH),$(ROOT_PATH)/$(BUILD_PATH),\
                      $(subst .c,.o,\
-                       $(subst .C,.o,\
-                         $(subst .s,.o,\
-                           $(subst .S,.o,$($(MODULE)_SRC))))))
+                       $(subst .cpp,.o,\
+                         $(subst .C,.o,\
+                           $(subst .s,.o,\
+                             $(subst .S,.o,$($(MODULE)_SRC)))))))
 
 $(MODULE)_DEP := $(subst .o,.d,$($(MODULE)_OBJ))
 
