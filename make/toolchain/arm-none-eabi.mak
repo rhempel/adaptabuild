@@ -17,6 +17,13 @@ OBJCOPY = $(TOOLCHAIN_PREFIX)-objcopy
 
 CFLAGS += -g -mcpu=$(MCU_ARCH) -ffunction-sections -fdata-sections -ffreestanding
 
+ifeq (hard,$(MCU_FLOAT))
+    CFLAGS += -mfloat-abi=hard
+    LDFLAGS += -L /usr/lib/picolibc/arm-none-eabi/lib/arm/v5te/hard -lc -lgcc
+else
+    # Do nothing
+endif
+
 CDEFS += $(MCU_VARIANT) MICRO_STM32_GCC
 
 # TODO: Move the actual libraries to be linked into the project level, but

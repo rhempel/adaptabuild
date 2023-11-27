@@ -16,7 +16,7 @@ include $(ADAPTABUILD_PATH)/make/objects.mak
 
 $(MODULE)_OBJPATH := $(addprefix $(ROOT_PATH)/$(BUILD_PATH)/,$($(MODULE)_SRCPATH))
 
-# $(info Forcing creation of: $($(MODULE)_OBJPATH))
+$(info Forcing creation of: $($(MODULE)_OBJPATH))
 
 _ := $(shell $(MKPATH) $($(MODULE)_OBJPATH))
 
@@ -71,6 +71,7 @@ $(MODULE)_DEP_OPT3 := $(subst .o_opt3,.d,$($(MODULE)_OBJ_OPT3))
 # all built from the same source but their object files are distinct.
 
 MODULE_LIBS += $(ROOT_PATH)/$(BUILD_PATH)/$(MODULE_PATH)/$(MODULE).a
+$(info MODULE_LIBS is: $(MODULE_LIBS))
 
 # This module library depends on the list of objects in $($(MODULE)_OBJ)
 # which is handled in module_objects.mak

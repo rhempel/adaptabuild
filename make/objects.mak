@@ -8,14 +8,15 @@
 # Add the $(MODULE)_ prefix to create unique compiler flags for this module
 # at build time
 
+$(info $(MODULE)_INCPATH is $($(MODULE)_INCPATH))
 $(MODULE)_INCPATH := $(addprefix -I $(ROOT_PATH)/$(SRC_PATH)/,$($(MODULE)_INCPATH))
-# $(info $(MODULE)_INCPATH is $($(MODULE)_INCPATH))
+$(info $(MODULE)_INCPATH is $($(MODULE)_INCPATH))
 
 $(MODULE)_CDEFS := $(addprefix -D ,$($(MODULE)_CDEFS) $(CDEFS))
-# $(info $(MODULE)_CDEFS is $($(MODULE)_CDEFS))
+$(info $(MODULE)_CDEFS is $($(MODULE)_CDEFS))
 
 $(MODULE)_CFLAGS := $($(MODULE)_CFLAGS) $(CFLAGS)
-# $(info $(MODULE)_CFLAGS is $($(MODULE)_CFLAGS))
+$(info $(MODULE)_CFLAGS is $($(MODULE)_CFLAGS))
 
 # This is a rule to build an object file from a .c file - we take advantage
 # of make's ability to create variables for each object file at build time to
@@ -57,7 +58,7 @@ PREREQ_STEM := $(ROOT_PATH)/$(SRC_PATH)/$(MODULE_PATH)
 #
 # Note that the target stem is ALWAYS the same: $(TARGET_STEM)/%.o
 
-$(TARGET_STEM)/%.o: INCPATH := $($(MODULE)_INCPATH)
+$(TARGET_STEM)/%.o: INCPATH := $($(MODULE)_INCPATH) -I $(LIBC_INCPATH)
 $(TARGET_STEM)/%.o: CDEFS   := $($(MODULE)_CDEFS)
 $(TARGET_STEM)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
 
