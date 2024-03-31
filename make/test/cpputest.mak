@@ -12,9 +12,9 @@
 # Add the $(MODULE)_ prefix to create a unique OBJPATH for this module
 # at build time
 
-$(info  cpputest.mak SRC_PATH is $(SRC_PATH))
-$(info  cpputest.mak BUILD_PATH is $(BUILD_PATH))
-$(info  cpputest.mak MODULE_TESTPATH is $($(MODULE)_TESTPATH))
+# $(info  cpputest.mak SRC_PATH is $(SRC_PATH))
+# $(info  cpputest.mak BUILD_PATH is $(BUILD_PATH))
+# $(info  cpputest.mak MODULE_TESTPATH is $($(MODULE)_TESTPATH))
 
 # # !!! Not needed as libabry.mak already does this work - consider encapsulating
 # # all those common includes at the end of the adaptabuild.m files!

@@ -8,15 +8,15 @@
 # Add the $(MODULE)_ prefix to create unique compiler flags for this module
 # at build time
 
-$(info $(MODULE)_INCPATH is $($(MODULE)_INCPATH))
+$(call log_debug,$(MODULE)_INCPATH is $($(MODULE)_INCPATH))
 $(MODULE)_INCPATH := $(addprefix -I $(SRC_PATH)/,$($(MODULE)_INCPATH))
-$(info $(MODULE)_INCPATH is $($(MODULE)_INCPATH))
+$(call log_debug,$(MODULE)_INCPATH is $($(MODULE)_INCPATH))
 
 $(MODULE)_CDEFS := $(addprefix -D ,$($(MODULE)_CDEFS) $(CDEFS))
-$(info $(MODULE)_CDEFS is $($(MODULE)_CDEFS))
+$(call log_debug,$(MODULE)_CDEFS is $($(MODULE)_CDEFS))
 
 $(MODULE)_CFLAGS := $($(MODULE)_CFLAGS) $(CFLAGS)
-$(info $(MODULE)_CFLAGS is $($(MODULE)_CFLAGS))
+$(call log_debug,$(MODULE)_CFLAGS is $($(MODULE)_CFLAGS))
 
 # This is a rule to build an object file from a .c file - we take advantage
 # of make's ability to create variables for each object file at build time to
@@ -66,11 +66,11 @@ $(TARGET_STEM)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.c
 	@echo Building $@ from $<
-	 $(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.cpp
 	@echo Building $@ from $<
-	 $(CXX) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	@$(CXX) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.C
 	@echo Building $@ from $<
