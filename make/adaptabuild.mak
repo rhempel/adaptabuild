@@ -3,7 +3,7 @@
 #
 # Invoke the build system with:
 #
-# make -f path/to/adaptabuild.mak
+# make -f path/to/adaptabuild.mak MCU=xxx PRODUCT=yyy target
 #
 # AVOID CHANGING THIS FILE - your project specific includes come from the
 #                            adaptabuild.project.mak file
@@ -71,10 +71,13 @@ $(call log_info,MCU_MAK is $(MCU_MAK))
 include $(ROOT_PATH)/adaptabuild_product.mak
 
 BUILD_PATH := $(ROOT_PATH)/build/$(PRODUCT)/$(MCU)
-$(call log_info,BUILD_PATH is $(BUILD_PATH))
+$(call log_notice,BUILD_PATH is $(BUILD_PATH))
+
+ABS_BUILD_PATH := $(ABS_PATH)/build/$(PRODUCT)/$(MCU)
+$(call log_notice,ABS_BUILD_PATH is $(ABS_BUILD_PATH))
 
 ARTIFACTS_PATH := $(ROOT_PATH)/artifacts/$(PRODUCT)/$(MCU)
-$(call log_info,ARTIFACTS_PATH is $(ARTIFACTS_PATH))
+$(call log_notice,ARTIFACTS_PATH is $(ARTIFACTS_PATH))
 
 # ----------------------------------------------------------------------------
 
@@ -94,13 +97,13 @@ $(call log_info,ARTIFACTS_PATH is $(ARTIFACTS_PATH))
 all: foo bar baz bif
 
 foo:
-    $(info adaptabuild foo)
+    $(call log_info,adaptabuild foo)
 
 bar:
-    $(info adaptabuild bar)
+    $(call log_info,adaptabuild bar)
 
 baz:
-    $(info adaptabuild baz)
+    $(call log_info,adaptabuild baz)
 
 bif: $(BUILD_PATH)/product/$(PRODUCT)/$(PRODUCT)
 
@@ -116,6 +119,8 @@ include $(MCU_MAK)
 
 include $(SRC_PATH)/product/$(PRODUCT)/adaptabuild.mak
 
+$(call log_notice,TESTABLE_MODULES is $(TESTABLE_MODULES))
+
 # ----------------------------------------------------------------------------
 # Default target for now:
 #
@@ -125,6 +130,10 @@ include $(SRC_PATH)/product/$(PRODUCT)/adaptabuild.mak
 
 LDSCRIPT = $(SRC_PATH)/product/$(PRODUCT)/config/$(MCU)/linker_script.ld
 
+# TODO: Separate the linker options between host and embedded builds.
+#       Host builds use g++ which does not support --start-group
+#       Embedded builds need --start-group
+
 $(BUILD_PATH)/product/$(PRODUCT)/$(PRODUCT): LDFLAGS +=  -T$(LDSCRIPT)
 $(BUILD_PATH)/product/$(PRODUCT)/$(PRODUCT): $(MODULE_LIBS) $(LDSCRIPT)
 	$(LD) -o $@ $(SYSTEM_STARTUP_OBJ) < \
@@ -132,108 +141,13 @@ $(BUILD_PATH)/product/$(PRODUCT)/$(PRODUCT): $(MODULE_LIBS) $(LDSCRIPT)
               --start-group $(MODULE_LIBS) --end-group $(LDFLAGS) \
               -Map=$@.map
 
+#              $(MODULE_LIBS) $(LDFLAGS) \
+
+
 # SYSTEM_MAIN_OBJ := $(ROOT_PATH)/$(BUILD_PATH)/$(MODULE_PATH)/main.o
 
-# ----------------------------------------------------------------------------
-# Set up for unit testing of a specific module
-
-$(call log_debug,TEST_MODULE is $(TEST_MODULE))
-$(call log_debug,TESTABLE_MODULES is $(TESTABLE_MODULES))
-
-ifeq (unittest,$(MAKECMDGOALS))
-    ifneq ($(filter $(TEST_MODULE),$(TESTABLE_MODULES)),)
-    else
-      $(error TEST_MODULE must be one of $(TESTABLE_MODULES))
-    endif
-endif
-
-# LD_LIBRARIES := -Wl,-whole-archive build/foo/unittest/umm_malloc/umm_malloc.a
-# LD_LIBRARIES += -Wl,-no-whole-archive -lstdc++ -lCppUTest -lCppUTestExt -lgcov
-
-#$(MODULE_TEST_LIBS)
-
-# Find a way to change to a directory and make all subsequent calls
-# relative to that location
-
-$(call log_debug,BUILD_PATH/TEST_MODULE is $(BUILD_PATH)/$(TEST_MODULE))
-
-TEST_MODULE_LIB := $(BUILD_PATH)/$(TEST_MODULE)/$(TEST_MODULE).a
-
-$(call log_debug,TEST_MODULE_LIB is $(TEST_MODULE_LIB))
-
-unittest: $(BUILD_PATH)/$(TEST_MODULE)/$(TEST_MODULE)_unittest $(TEST_MODULE_LIB) artifacts_foo
-
-# TODO: Consider moving some of the library requirements to the module level test defines
-
-# $(BUILD_PATH)/$(TEST_MODULE)/unittest: $(MODULE_LIBS)  -lstdc++ -lgcov --copy-dt-needed-entries
-$(BUILD_PATH)/$(TEST_MODULE)/$(TEST_MODULE)_unittest:
-$(BUILD_PATH)/$(TEST_MODULE)/$(TEST_MODULE)_unittest: LDFLAGS := $(TEST_MODULE_LIB) $(LDFLAGS) -lCppUTest -lCppUTestExt -lm -lgcov
-$(BUILD_PATH)/$(TEST_MODULE)/$(TEST_MODULE)_unittest: $(TEST_MODULE_LIB)
-	$(LD) -o $@ \
-         $(LDFLAGS)
-
-# NOTE: the BUILD_PATH now has the ROOT_PATH built-in - so be careful how we update
-#       using the ABS_PATH!
-
-artifacts_foo:
-  # Create the artifacts folder
-	mkdir -p $(ARTIFACTS_PATH)/$(TEST_MODULE)
-
-  # Create a baseline for code coverage
-	cd $(ARTIFACTS_PATH)/$(TEST_MODULE) && \
-    lcov -z -d --rc lcov_branch_coverage=1 $(ABS_PATH)/$(BUILD_PATH)/$(TEST_MODULE)/src
-
-  # Run the test suite
-	cd $(ARTIFACTS_PATH)/$(TEST_MODULE) && \
-    $(ABS_PATH)/$(BUILD_PATH)/$(TEST_MODULE)/$(TEST_MODULE)_unittest -k $(TEST_MODULE) -ojunit
-
-  # Create the test report
-	cd $(ARTIFACTS_PATH)/$(TEST_MODULE) && \
-    junit2html --merge $(TEST_MODULE).xml *.xml && \
-	  junit2html $(TEST_MODULE).xml $(TEST_MODULE).html && \
-	  rm $(TEST_MODULE).xml
-
-  # Update the incremental code coverage
-	cd $(ARTIFACTS_PATH)/$(TEST_MODULE) && \
-    lcov -c -d --rc lcov_branch_coverage=1 $(ABS_PATH)/$(BUILD_PATH)/$(TEST_MODULE)/src -o $(TEST_MODULE).info
-
-  # Create the code coverage report
-	cd $(ARTIFACTS_PATH)/$(TEST_MODULE) && \
-    genhtml --rc genhtml_branch_coverage=1 *.info
-
-
-# $(BUILD_PATH)/umm_malloc/unittest/umm_malloc_test
-#	mkdir -p artifacts/umm_malloc
-#    # Create a baseline for code coverage
-#	- cd artifacts/umm_malloc && \
-#      lcov -z -d ../../$(BUILD_PATH)/umm_malloc/src
-#    # Run the test suite
-#	- cd artifacts/umm_malloc && \
-#	  ../../$(BUILD_PATH)/umm_malloc/unittest/umm_malloc_test -k umm_malloc -ojunit
-#    # Create the test report
-#	- cd artifacts/umm_malloc && \
-#	  junit2html --merge cpputest_umm_malloc.xml *.xml && \
-#	  junit2html cpputest_umm_malloc.xml umm_malloc.html && \
-#	  rm cpputest_umm_malloc.xml
-
-#    # Update the incremental code coverage
-#	- cd artifacts/umm_malloc && \
-#      lcov -c -d ../../$(BUILD_PATH)/umm_malloc/src -o umm_malloc.info
-#    # Create the code coverage report
-#	- cd artifacts/umm_malloc && \
-#      genhtml *.info
-
-# $(BUILD_PATH)/umm_malloc/unittest/umm_malloc_test: $(MODULE_LIBS)
-#	@echo Building $@ from $<
-#	$(LD) -o $@ $(LD_LIBRARIES)
-
-#./umm_malloc_test -ojunit
-#junit2html cpputest_FirstTestGroup.xml
-#gcov -j main test
-#lcov -c -i -d . -o main.info
-#lcov -c  -d . -o main_test.info
-#lcov -a main.info -a main_test.info -o total.info
-#genhtml *.info
+unittest : $(TESTABLE_MODULES)
+	@echo dkfjvndkfjvnkjn $(TESTABLE_MODULES)
 
 # ----------------------------------------------------------------------------
 # .PHONY targets that provide some eye candy for the make log

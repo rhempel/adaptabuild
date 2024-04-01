@@ -9,77 +9,83 @@
 # endif
 # ----------------------------------------------------------------------------
 
-# Add the $(MODULE)_ prefix to create a unique OBJPATH for this module
-# at build time
+$(call log_notice,SRC_TEST is $(SRC_TEST))
+$(MODULE)_SRC_TEST := $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_TEST))
+$(call log_notice,MODULE_SRC_TEST is $($(MODULE)_SRC_TEST))
 
-# $(info  cpputest.mak SRC_PATH is $(SRC_PATH))
-# $(info  cpputest.mak BUILD_PATH is $(BUILD_PATH))
-# $(info  cpputest.mak MODULE_TESTPATH is $($(MODULE)_TESTPATH))
+# Now transform the filenames ending in .c snd .cpp into .o files so
+# that we have unique object filenames.
+#
+# This allows us to generate and objects, libraries, and other artifacts
+# separately from the source tree.
+#
+$(MODULE)_OBJ_TEST := $(subst $(SRC_PATH),$(BUILD_PATH),\
+                        $(subst .c,.o,\
+                          $(subst .cpp,.o,$($(MODULE)_SRC_TEST))))
+ 
+ $(call log_notice,MODULE_OBJ_TEST is $($(MODULE)_OBJ_TEST))
 
-# # !!! Not needed as libabry.mak already does this work - consider encapsulating
-# # all those common includes at the end of the adaptabuild.m files!
-# #
-# # Note the trick of adding a _ (underscore) at the front of the string
-# # and the SRC_PATH - this is to prevent a $(MODULE)_SRCPATH)) like:
-# #   src/module/src
-# # from having BOTH occurences of src substituted!
-# #
-# $(MODULE)_OBJPATH := $(subst _$(SRC_PATH),$(BUILD_PATH),$($(MODULE)_SRCPATH))
-# 
-# $(info  MODULE_OBJPATH is $($(MODULE)_OBJPATH))
-# 
-# # # Force the creation of the build directory path(s) that are needed
-# # # for this library
-# # 
-# # _ := $(shell $(MKPATH) $($(MODULE)_OBJPATH))
-# 
-# $($(MODULE)_OBJPATH):
-# 	$(MKPATH) $($(MODULE)_OBJPATH)
-# 
-# $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test.a :: $($(MODULE)_OBJPATH)
-# 	$(echo Making directories ...)
-# 
-# # Add the $(MODULE)_ prefix to create a unique source filename
-# # for the c and assembler files in this module.
-# 
-# $(MODULE)_TEST_SRC := $(addprefix _$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_TEST_C))
-# $(MODULE)_TEST_SRC += $(addprefix _$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_TEST_ASM))
-# 
-# $(info  $(MODULE)_TEST_SRC is $($(MODULE)_TEST_SRC))
-# 
-# # Now transform the filenames ending in .c, .s, and .S into .o files so
-# # that we have unique object filenames.
-# #
-# # This allows us to generate and objects, libraries, and other artifacts
-# # separately from the source tree.
-# #
-# # See the note above about the _ (underscore) trick when substituting
-# 
-# $(MODULE)_TEST_OBJ := $(subst _$(SRC_PATH),$(BUILD_PATH),\
-#                        $(subst .c,.o,\
-#                          $(subst .s,.o,\
-#                            $(subst .S,.o,$($(MODULE)_TEST_SRC)))))
-# 
-# $(info  $(MODULE)_TEST_OBJ is $($(MODULE)_TEST_OBJ))
-# 
-# $(MODULE)_TEST_DEP := $(subst .o,.d,$($(MODULE)_TEST_OBJ))
-# 
-# $(info  $(MODULE)_TEST_DEP is $($(MODULE)_TEST_DEP))
-# 
-# # Add the module specific library to the list of modules that must
-# # be built for the project. Note that we store the library with the
-# # objects that are built for this configuration of the project. This
-# # allows us to build multiple projects and guarantee that they are
-# # all built from the same source but their object files are distinct.
-# 
-# MODULE_TEST_LIBS += $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test.a
-# 
-# # This module library depends on the list of objects in $($(MODULE)_OBJ)
-# # which is handled in module_objects.mak
-# 
-# # $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE).a : $($(MODULE)_OBJ) $($(MODULE)_OBJ_OPT3)
-# $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test.a :: $($(MODULE)_TEST_OBJ) $($(MODULE)_TEST_OBJ_OPT3)
-# 	@echo Building $@
-# 	@$(AR) -cr $@ $?
-#  
+$(MODULE)_DEP_TEST := $(subst .o,.d,$($(MODULE)_OBJ_TEST))
+
+$(call log_notice,MODULE_DEP_TEST is $($(MODULE)_DEP_TEST))
+
+# Add the module specific library to the list of modules that must
+# be built for the project. Note that we store the library with the
+# objects that are built for this configuration of the project. This
+# allows us to build multiple projects and guarantee that they are
+# all built from the same source but their object files are distinct.
+
+MODULE_LIBS_TEST += $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test.a
+
+$(call log_notice,MODULE_LIBS_TEST is $(MODULE_LIBS_TEST))
+
+# This module library depends on the list of objects in $($(MODULE)_OBJ_TEST)
+# which is handled in module_objects.mak
+
+$(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test.a: $($(MODULE)_OBJ_TEST)
+	@echo Building $@ from $?
+	@$(AR) -cr $@ $?
+
+$(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test: TEST_MAIN_OBJ := $(BUILD_PATH)/$(MODULE_PATH)/$($(MODULE)_test_main)
+$(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test: $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test.a $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE).a
+	@echo Building $@ from object $(TEST_MAIN_OBJ)
+	$(LD) -o $@ $(TEST_MAIN_OBJ) $? -lstdc++ -lgcov -lCppUTest -lCppUTestExt -lm 
+
 # # ----------------------------------------------------------------------------
+
+.PHONY: $(MODULE)_UNITTEST
+
+$(MODULE)_UNITTEST: TEST_MODULE := $(MODULE)
+$(MODULE)_UNITTEST: $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test
+	@echo aa $(TEST_MODULE) bb $(BUILD_PATH)/$(MODULE_PATH)/$(TEST_MODULE)_test cc
+
+    # Create the artifacts folders
+	mkdir -p $(ARTIFACTS_PATH)/$(TEST_MODULE)/coverage
+	mkdir -p $(ARTIFACTS_PATH)/$(TEST_MODULE)/unittest
+
+    # Create a baseline for code coverage
+	cd $(ARTIFACTS_PATH)/$(TEST_MODULE) && \
+	lcov -z -d --rc lcov_branch_coverage=1 $(ABS_BUILD_PATH)/$(TEST_MODULE)/src
+ 
+    # Run the test suite
+	cd $(ARTIFACTS_PATH)/$(TEST_MODULE)/unittest && \
+	$(ABS_BUILD_PATH)/$(TEST_MODULE)/$(TEST_MODULE)_test -k $(TEST_MODULE) -ojunit
+ 
+    # Create the test report
+	cd $(ARTIFACTS_PATH)/$(TEST_MODULE)/unittest && \
+	junit2html --merge $(TEST_MODULE).xml *.xml && \
+	junit2html $(TEST_MODULE).xml index.html && \
+	rm *.xml
+ 
+    # Update the incremental code coverage
+	cd $(ARTIFACTS_PATH)/$(TEST_MODULE) && \
+	lcov -c -d --rc lcov_branch_coverage=1 $(ABS_BUILD_PATH)/$(TEST_MODULE)/src -o $(TEST_MODULE).info
+ 
+    # Create the code coverage report
+	cd $(ARTIFACTS_PATH)/$(TEST_MODULE) && \
+	genhtml --rc genhtml_branch_coverage=1 -o coverage *.info && \
+	rm *.info
+
+    # TODO: Clean up each set of artifacts and separate the code coverage
+    #       from the unit test results
+# ----------------------------------------------------------------------------
