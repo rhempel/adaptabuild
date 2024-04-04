@@ -19,7 +19,7 @@ CFLAGS += -g -mcpu=$(MCU_ARCH) -ffunction-sections -fdata-sections -ffreestandin
 
 ifeq (hard,$(MCU_FLOAT))
     CFLAGS += -mfloat-abi=hard
-    LDFLAGS += -L /usr/lib/picolibc/arm-none-eabi/lib/arm/v5te/hard -lc -lgcc
+    LDFLAGS += -lgcc
 else
     # Do nothing
 endif
@@ -33,7 +33,7 @@ CDEFS += $(MCU_VARIANT) MICRO_STM32_GCC
 #       in the mcu verification process
 
 LDFLAGS += --gc-sections
-LDFLAGS += -L /usr/lib/gcc/arm-none-eabi/10.3.1/$(MCU_LDPATH)
+LDFLAGS += -L /usr/lib/gcc/arm-none-eabi/10.3.1/$(MCU_LDPATH) -lgcc
 
 # ----------------------------------------------------------------------------
 # See https://www.cmcrossroads.com/article/tips-and-tricks-automatic-dependency-generation-masters
