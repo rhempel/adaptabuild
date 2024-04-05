@@ -105,7 +105,7 @@ bar:
 baz:
     $(call log_info,adaptabuild baz)
 
-bif: $(BUILD_PATH)/product/$(PRODUCT)/$(PRODUCT)
+bif: $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT)
 
 # ----------------------------------------------------------------------------
 # Do NOT move this include - it MUST be after the definition of BUILD_PATH
@@ -117,7 +117,7 @@ include $(ROOT_PATH)/adaptabuild_artifacts.mak
 #
 include $(MCU_MAK)
 
-include $(SRC_PATH)/product/$(PRODUCT)/adaptabuild.mak
+include $(SRC_PATH)/$(PRODUCT)/adaptabuild.mak
 
 $(call log_notice,TESTABLE_MODULES is $(TESTABLE_MODULES))
 
@@ -128,23 +128,17 @@ $(call log_notice,TESTABLE_MODULES is $(TESTABLE_MODULES))
 #
 # Simplify to path to the product source and product_main and executable
 
-LDSCRIPT = $(SRC_PATH)/product/$(PRODUCT)/config/$(MCU)/linker_script.ld
+LDSCRIPT = $(SRC_PATH)/$(PRODUCT)/config/$(MCU)/linker_script.ld
 
 # TODO: Separate the linker options between host and embedded builds.
 #       Host builds use g++ which does not support --start-group
 #       Embedded builds need --start-group
 
-$(BUILD_PATH)/product/$(PRODUCT)/$(PRODUCT): LDFLAGS +=  -T$(LDSCRIPT)
-$(BUILD_PATH)/product/$(PRODUCT)/$(PRODUCT): $(MODULE_LIBS) $(LDSCRIPT)
+$(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): LDFLAGS += -T$(LDSCRIPT)
+$(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): $(MODULE_LIBS) $(LDSCRIPT)
 	$(LD) -o $@ $(SYSTEM_STARTUP_OBJ) < \
-	            $(BUILD_PATH)/product/$(PRODUCT)/src/$(PRODUCT)_main.o \
-              --start-group $(MODULE_LIBS) --end-group $(LDFLAGS) \
-              -Map=$@.map
-
-#              $(MODULE_LIBS) $(LDFLAGS) \
-
-
-# SYSTEM_MAIN_OBJ := $(ROOT_PATH)/$(BUILD_PATH)/$(MODULE_PATH)/main.o
+	            $(BUILD_PATH)/$(PRODUCT)/src/$(PRODUCT)_main.o \
+              $(LDGROUP) $(LDFLAGS) $(LDMAP)
 
 unittest : $(TESTABLE_MODULES)
 	@echo dkfjvndkfjvnkjn $(TESTABLE_MODULES)

@@ -35,6 +35,15 @@ CDEFS += $(MCU_VARIANT) MICRO_STM32_GCC
 LDFLAGS += --gc-sections
 LDFLAGS += -L /usr/lib/gcc/arm-none-eabi/10.3.1/$(MCU_LDPATH) -lgcc
 
+# NOTE: These variables are not expanded at assignment time - they are
+#       deferred variables that are expanded when they are used!!!
+#
+# That's so we can use shortcut variables like $@ that we cannot know
+# the value of until they are used.
+
+LDGROUP = --start-group $(MODULE_LIBS) --end-group
+LDMAP = -Map=$@.map
+
 # ----------------------------------------------------------------------------
 # See https://www.cmcrossroads.com/article/tips-and-tricks-automatic-dependency-generation-masters
 # for the thinking behind the -MD -MP combination!
