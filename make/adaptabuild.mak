@@ -136,9 +136,9 @@ LDSCRIPT = $(SRC_PATH)/$(PRODUCT)/config/$(MCU)/linker_script.ld
 
 $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): LDFLAGS += -T$(LDSCRIPT)
 $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): $(MODULE_LIBS) $(LDSCRIPT)
-	$(LD) -o $@ $(SYSTEM_STARTUP_OBJ) < \
+	$(LD) -g -o $@ $(SYSTEM_STARTUP_OBJ) < \
 	            $(BUILD_PATH)/$(PRODUCT)/src/$(PRODUCT)_main.o \
-              $(LDGROUP) $(LDFLAGS) $(LDMAP)
+              $(LDGROUP) $(LDFLAGS) $(LDMAP) --cref
 
 unittest : $(TESTABLE_MODULES)
 	@echo dkfjvndkfjvnkjn $(TESTABLE_MODULES)
