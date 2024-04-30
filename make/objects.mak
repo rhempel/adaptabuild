@@ -10,7 +10,7 @@
 
 $(call log_debug,$(MODULE)_INCPATH is $($(MODULE)_INCPATH))
 $(call log_debug,LIBC_INCPATH is $(LIBC_INCPATH))
-$(MODULE)_INCPATH := $(addprefix -I $(SRC_PATH)/,$($(MODULE)_INCPATH) $(LIBC_INCPATH))
+$(MODULE)_INCPATH := $(addprefix -I $(SRC_PATH)/,$(LIBC_INCPATH) $($(MODULE)_INCPATH))
 $(call log_debug,$(MODULE)_INCPATH is $($(MODULE)_INCPATH))
 
 $(MODULE)_CDEFS := $(addprefix -D ,$($(MODULE)_CDEFS) $(CDEFS))
