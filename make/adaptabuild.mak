@@ -128,7 +128,7 @@ $(call log_notice,TESTABLE_MODULES is $(TESTABLE_MODULES))
 #
 # Simplify to path to the product source and product_main and executable
 
-LDSCRIPT = $(SRC_PATH)/$(PRODUCT)/config/$(MCU)/linker_script.ld
+LDSCRIPT = $(SRC_PATH)/$(PRODUCT)/config/$(MCU)/$(MCU_LINKER_SCRIPT).ld
 
 # TODO: Separate the linker options between host and embedded builds.
 #       Host builds use g++ which does not support --start-group
