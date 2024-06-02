@@ -99,10 +99,11 @@ ifeq ($(filter $(MCU),$(MCU_LIST)),$(MCU))
     MCU_FAMILY := stm32f0xx
     MCU_ARCH := cortex-m0
     MCU_LDPATH := thumb/v6-m/nofp
+    MCU_LINKER_SCRIPT := linker_script.ld
 
 	include $(ADAPTABUILD_PATH)/make/toolchain/arm-none-eabi.mak
 
- 	MCU_MAK += cmsis_core/adaptabuild.mak
- 	MCU_MAK += cmsis_device_f0/adaptabuild.mak
-	MCU_MAK += stm32f0xx_hal_driver/adaptabuild.mak
+ 	MCU_MAK += third_party/cmsis_core/adaptabuild.mak
+ 	MCU_MAK += third_party/cmsis_device_f0/adaptabuild.mak
+	MCU_MAK += third_party/stm32f0xx_hal_driver/adaptabuild.mak
 endif

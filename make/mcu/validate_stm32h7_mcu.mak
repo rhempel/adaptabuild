@@ -81,10 +81,11 @@ ifeq ($(filter $(MCU),$(MCU_LIST)),$(MCU))
     MCU_ARCH := cortex-m7
     MCU_LDPATH := thumb/v7e-m+fp/hard
     MCU_FLOAT := hard
+    MCU_LINKER_SCRIPT := linker_script.ld
 
 	include $(ADAPTABUILD_PATH)/make/toolchain/arm-none-eabi.mak
 
-	MCU_MAK += cmsis_core/adaptabuild.mak
-	MCU_MAK += cmsis_device_h7/adaptabuild.mak
-	MCU_MAK += stm32h7xx_hal_driver/adaptabuild.mak
+	MCU_MAK += third_party/cmsis_core/adaptabuild.mak
+	MCU_MAK += third_party/cmsis_device_h7/adaptabuild.mak
+	MCU_MAK += third_party/stm32h7xx_hal_driver/adaptabuild.mak
 endif
