@@ -67,7 +67,7 @@ $(TARGET_STEM)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.c
 	@echo Building $@ from $<
-	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.cpp
 	@echo Building $@ from $<
@@ -83,7 +83,7 @@ $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.s
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.S
 	@echo Building $@ from $<
-	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 # Special handling for _OPT3 objects ... the target stem is different than
 # the previous set so it can have its own target specific variables.
