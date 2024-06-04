@@ -83,7 +83,7 @@ $(call log_info,ARTIFACTS_PATH is $(ARTIFACTS_PATH))
 
 .SUFFIXES :
 
-.PHONY : all clean $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT).boot
+.PHONY : all clean
 
 # ----------------------------------------------------------------------------
 # The default all: target can have multiple dependencies, and they are ALWAYS
@@ -121,19 +121,22 @@ include $(SRC_PATH)/$(PRODUCT)/adaptabuild.mak
 
 $(call log_notice,TESTABLE_MODULES is $(TESTABLE_MODULES))
 
-
 # $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): LDFLAGS += -T$(LDSCRIPT)
 # $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): $(MODULE_LIBS) $(LDSCRIPT)
 
 #  $(call log_notice,adaptabuild bootloader)
 
-bootloader : $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT).boot
+ifeq ($(BOOT_LINKER_SCRIPT),)
+    bootloader :
+else
+    bootloader : $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT).boot
+endif
 
 #    $(call log_notice,adaptabuild bootloader)
 
 BOOT_LDSCRIPT := $(SRC_PATH)/$(PRODUCT)/config/$(MCU)/$(BOOT_LINKER_SCRIPT)
 
-$(BUILD_PATH)/$(PRODUCT)/$(PRODUCT).boot: LDFLAGS = -T $(BOOT_LDSCRIPT)
+$(BUILD_PATH)/$(PRODUCT)/$(PRODUCT).boot: LDFLAGS += -T $(BOOT_LDSCRIPT)
 $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT).boot: LDGROUP  =
 $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT).boot: $(MODULE_LIBS) $(BOOT_LDSCRIPT)
 	$(LD) -g -o $@  $(SYSTEM_BOOT_OBJ) \
@@ -156,8 +159,7 @@ LDSCRIPT := $(SRC_PATH)/$(PRODUCT)/config/$(MCU)/$(MCU_LINKER_SCRIPT)
 
 $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): LDFLAGS += -T$(LDSCRIPT)
 $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): $(MODULE_LIBS) $(LDSCRIPT)
-	$(LD) -g -o $@ < \
-	            $(BUILD_PATH)/$(PRODUCT)/src/$(PRODUCT)_main.o \
+	$(LD) -g -o $@ < $(BUILD_PATH)/$(PRODUCT)/src/$(PRODUCT)_main.o \
               $(LDGROUP) $(LDFLAGS) $(LDMAP) --cref
 
 unittest : $(TESTABLE_MODULES)

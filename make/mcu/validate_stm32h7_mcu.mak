@@ -81,6 +81,7 @@ ifeq ($(filter $(MCU),$(MCU_LIST)),$(MCU))
     MCU_ARCH := cortex-m7
     MCU_LDPATH := thumb/v7e-m+fp/hard
     MCU_FLOAT := hard
+    MCU_LINKER_SCRIPT := linker_script.ld
 
 	include $(ADAPTABUILD_PATH)/make/toolchain/arm-none-eabi.mak
 
