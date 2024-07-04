@@ -30,6 +30,6 @@ ifeq ($(filter $(MCU),$(MCU_LIST)),$(MCU))
 
 	include $(ADAPTABUILD_PATH)/make/toolchain/arm-none-eabi.mak
 
- 	MCU_MAK += cmsis_core/adaptabuild.mak
- 	MCU_MAK += pico-sdk/adaptabuild.mak
+ 	MCU_MAK += third_party/cmsis_core/adaptabuild.mak
+ 	MCU_MAK += third_party/pico-sdk/adaptabuild.mak
 endif
