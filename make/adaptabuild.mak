@@ -69,6 +69,7 @@ $(call log_info,MCU_MAK is $(MCU_MAK))
 # Do NOT move this include - it MUST be after the definition of MCU_MAK
 #                                  and before the definition of BUILD_PATH
 include $(ROOT_PATH)/adaptabuild_product.mak
+$(call log_info,PRODUCT is $(PRODUCT))
 
 BUILD_PATH := $(ROOT_PATH)/build/$(PRODUCT)/$(MCU)
 $(call log_notice,BUILD_PATH is $(BUILD_PATH))
@@ -94,7 +95,7 @@ $(call log_notice,ARTIFACTS_PATH is $(ARTIFACTS_PATH))
 #       things like unit testing, adding CRC or checksum, combining images
 #       or even loading an image onto a real target.
 
-all: foo bar baz bif
+all: foo bar product baz bif
 
 foo:
     $(call log_info,adaptabuild foo)
@@ -102,10 +103,13 @@ foo:
 bar:
     $(call log_info,adaptabuild bar)
 
+product: $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT)
+
 baz:
     $(call log_info,adaptabuild baz)
 
-bif: $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT)
+bif:
+    $(call log_info,adaptabuild bif)
 
 # ----------------------------------------------------------------------------
 # Do NOT move this include - it MUST be after the definition of BUILD_PATH
@@ -117,6 +121,9 @@ include $(ROOT_PATH)/adaptabuild_artifacts.mak
 #
 include $(MCU_MAK)
 
+# Not sure if this is needed - do we need a rule about how to name a module?
+# or if a product should have at least a dummy file - normally we have main.c
+# in the product folder
 include $(SRC_PATH)/$(PRODUCT)/adaptabuild.mak
 
 $(call log_notice,TESTABLE_MODULES is $(TESTABLE_MODULES))

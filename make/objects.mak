@@ -10,13 +10,18 @@
 
 $(call log_debug,$(MODULE)_INCPATH is $($(MODULE)_INCPATH))
 $(call log_debug,LIBC_INCPATH is $(LIBC_INCPATH))
+
+# NOTE: The $(addprefix) function also strips whitespace from around the
+#       variable(s) as a side effect. In the case of CFLAGS we add an
+#       empty prefix to stay consistent instead of using the $(strip) function.
+
 $(MODULE)_INCPATH := $(addprefix -I $(SRC_PATH)/,$(LIBC_INCPATH) $($(MODULE)_INCPATH))
 $(call log_debug,$(MODULE)_INCPATH is $($(MODULE)_INCPATH))
 
-$(MODULE)_CDEFS := $(addprefix -D ,$($(MODULE)_CDEFS) $(CDEFS))
+$(MODULE)_CDEFS := $(addprefix -D,$($(MODULE)_CDEFS) $(CDEFS))
 $(call log_debug,$(MODULE)_CDEFS is $($(MODULE)_CDEFS))
 
-$(MODULE)_CFLAGS := $($(MODULE)_CFLAGS) $(CFLAGS)
+$(MODULE)_CFLAGS := $(addprefix ,$($(MODULE)_CFLAGS) $(CFLAGS))
 $(call log_debug,$(MODULE)_CFLAGS is $($(MODULE)_CFLAGS))
 
 # This is a rule to build an object file from a .c file - we take advantage
