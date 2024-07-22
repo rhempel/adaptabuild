@@ -143,8 +143,8 @@ LDSCRIPT = $(SRC_PATH)/$(PRODUCT)/config/$(MCU)/$(MCU_LINKER_SCRIPT).ld
 
 $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): LDFLAGS += -T$(LDSCRIPT)
 $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): $(MODULE_LIBS) $(LDSCRIPT)
-	$(LD) -g -o $@ $(SYSTEM_STARTUP_OBJ) < \
-	            $(BUILD_PATH)/$(PRODUCT)/src/$(PRODUCT)_main.o \
+	$(LD) -o $@ $(SYSTEM_STARTUP_OBJ) < \
+	      $(BUILD_PATH)/$(PRODUCT_MAIN).o \
               $(LDGROUP) $(LDFLAGS) $(LDMAP) --cref
 
 unittest : $(TESTABLE_MODULES)
