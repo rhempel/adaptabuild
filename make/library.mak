@@ -14,8 +14,21 @@ endif
 
 include $(ADAPTABUILD_PATH)/make/objects.mak
 
-$(MODULE)_OBJPATH := $(addprefix $(BUILD_PATH)/,$($(MODULE)_SRCPATH))
-$(call log_debug,Forcing creation of: $($(MODULE)_OBJPATH))
+# This section transforms the module source file list into a list of
+# directories that must be created in the BUILD_PATH for the module.
+#
+# Without these directories already in place, the dependency and object
+# files cannot be created.
+#
+BUILD_FOLDERS := $(addprefix $(MODULE_PATH)/,$(sort $(dir $(SRC_C) $(SRC_ASM))))
+
+# Now remove any trailing / or /./ from the list. This is optional
+# as the Linux version of mkdir understands what to do with them
+#
+BUILD_FOLDERS := $(patsubst %/,%,$(BUILD_FOLDERS))
+BUILD_FOLDERS := $(patsubst %/.,%,$(BUILD_FOLDERS))
+
+BUILD_FOLDERS := $(addprefix $(BUILD_PATH)/,$(BUILD_FOLDERS))
 
 # Now we can create the build folders ...
 #
