@@ -32,13 +32,18 @@ LDFLAGS += --gc-sections
 LDFLAGS += -L /usr/lib/picolibc/arm-none-eabi/lib/$(MCU_LDPATH)
 LDFLAGS += -lc -lm
 
-LDFLAGS += -L /usr/lib/gcc/arm-none-eabi/10.3.1/$(MCU_LDPATH)
+# TODO: This library path should be a symlink so that it's not
+#       version dependent - set this up when building the 
+#       Docker image
+#
+# LDFLAGS += -L /usr/lib/gcc/arm-none-eabi/10.3.1/$(MCU_LDPATH)
+LDFLAGS += -L /usr/lib/gcc/arm-none-eabi/12.2.1/$(MCU_LDPATH)
 LDFLAGS += -lgcc
 
 
 # Choose one of these two for picolab - dummyhost for now ...
 #LDFLAGS +=  -lsemihost
-LDFLAGS +=  -ldummyhost
+# LDFLAGS +=  -ldummyhost
 
 
 # NOTE: These variables are not expanded at assignment time - they are

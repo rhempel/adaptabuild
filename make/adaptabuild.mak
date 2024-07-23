@@ -140,13 +140,23 @@ LDSCRIPT = $(SRC_PATH)/$(PRODUCT)/config/$(MCU)/$(MCU_LINKER_SCRIPT).ld
 # TODO: Separate the linker options between host and embedded builds.
 #       Host builds use g++ which does not support --start-group
 #       Embedded builds need --start-group
-
+#
+# TODO: Add support for high priority object files, for example
+#       strong overrides for weak symbols s shown below for
+#       stm32h7xx_it.o
+#
+#       This should probably be something like $(WEAK_OVERRIDES)
+#
+# TODO: Add some way of overriding the hiding of command lines at the
+#       top build level
+#
 $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): LDFLAGS += -T$(LDSCRIPT)
 $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): $(MODULE_LIBS) $(LDSCRIPT)
-	$(LD) -o $@ $(SYSTEM_STARTUP_OBJ) < \
+	$(LD) -g -o $@.elf $(SYSTEM_STARTUP_OBJ) < \
 	      $(BUILD_PATH)/$(PRODUCT_MAIN).o \
+	      $(BUILD_PATH)/HAL/STM/H7xx/LDD_T-RaCPU_H7B3RIT6/Src/stm32h7xx_it.o \
               $(LDGROUP) $(LDFLAGS) $(LDMAP) --cref
-
+	      
 unittest : $(TESTABLE_MODULES)
 	@echo dkfjvndkfjvnkjn $(TESTABLE_MODULES)
 
