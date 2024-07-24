@@ -33,11 +33,12 @@ LDFLAGS += -L /usr/lib/picolibc/arm-none-eabi/lib/$(MCU_LDPATH)
 LDFLAGS += -lc -lm
 
 # TODO: This library path should be a symlink so that it's not
-#       version dependent - set this up when building the 
+#       version dependent - set this up when building the
 #       Docker image
 #
-# LDFLAGS += -L /usr/lib/gcc/arm-none-eabi/10.3.1/$(MCU_LDPATH)
-LDFLAGS += -L /usr/lib/gcc/arm-none-eabi/12.2.1/$(MCU_LDPATH)
+GCC_VERSION ?= 10.3.1
+
+LDFLAGS += -L /usr/lib/gcc/arm-none-eabi/$(GCC_VERSION)/$(MCU_LDPATH)
 LDFLAGS += -lgcc
 
 

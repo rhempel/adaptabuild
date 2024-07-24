@@ -124,6 +124,7 @@ include $(MCU_MAK)
 # Not sure if this is needed - do we need a rule about how to name a module?
 # or if a product should have at least a dummy file - normally we have main.c
 # in the product folder
+#
 include $(SRC_PATH)/$(PRODUCT)/adaptabuild.mak
 
 $(call log_notice,TESTABLE_MODULES is $(TESTABLE_MODULES))
@@ -134,29 +135,28 @@ $(call log_notice,TESTABLE_MODULES is $(TESTABLE_MODULES))
 # LDSCRIPT should be named based on the project and target cpu
 #
 # Simplify to path to the product source and product_main and executable
-
+#
 LDSCRIPT = $(SRC_PATH)/$(PRODUCT)/config/$(MCU)/$(MCU_LINKER_SCRIPT).ld
+
+# The ld linker does not handle weak overrides well unless you use the
+# --whole-library option - and that will expand the binary file size.
+#
+# A better solution is to explicitly build a list of files that have
+# overrides for weak functions, and then add them to the linker command
+# line. Try to limit the number of files with overrides if possibly.
+#
+WEAK_OVERRIDES := $(addprefix $(BUILD_PATH)/,$(WEAK_OVERRIDES))
 
 # TODO: Separate the linker options between host and embedded builds.
 #       Host builds use g++ which does not support --start-group
 #       Embedded builds need --start-group
 #
-# TODO: Add support for high priority object files, for example
-#       strong overrides for weak symbols s shown below for
-#       stm32h7xx_it.o
-#
-#       This should probably be something like $(WEAK_OVERRIDES)
-#
-# TODO: Add some way of overriding the hiding of command lines at the
-#       top build level
-#
 $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): LDFLAGS += -T$(LDSCRIPT)
 $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): $(MODULE_LIBS) $(LDSCRIPT)
 	$(LD) -g -o $@.elf $(SYSTEM_STARTUP_OBJ) < \
-	      $(BUILD_PATH)/$(PRODUCT_MAIN).o \
-	      $(BUILD_PATH)/HAL/STM/H7xx/LDD_T-RaCPU_H7B3RIT6/Src/stm32h7xx_it.o \
+	      $(BUILD_PATH)/$(PRODUCT_MAIN).o $(WEAK_OVERRIDES) \
               $(LDGROUP) $(LDFLAGS) $(LDMAP) --cref
-	      
+
 unittest : $(TESTABLE_MODULES)
 	@echo dkfjvndkfjvnkjn $(TESTABLE_MODULES)
 

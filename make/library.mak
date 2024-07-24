@@ -14,13 +14,23 @@ endif
 
 include $(ADAPTABUILD_PATH)/make/objects.mak
 
+# Combine the raw SRC_C, SRC_ASM, and SRC_TEST into a single variable
+# that can be used for creating BUILD_FOLDERS and MODULE_OBJ
+#
+SRC_FILES := $(SRC_C) $(SRC_ASM)
+
+ifeq (unittest,$(MAKECMDGOALS))
+  SRC_FILES += $(SRC_TEST)
+else
+endif
+
 # This section transforms the module source file list into a list of
 # directories that must be created in the BUILD_PATH for the module.
 #
 # Without these directories already in place, the dependency and object
 # files cannot be created.
 #
-BUILD_FOLDERS := $(addprefix $(MODULE_PATH)/,$(sort $(dir $(SRC_C) $(SRC_ASM))))
+BUILD_FOLDERS := $(addprefix $(MODULE_PATH)/,$(sort $(dir $(SRC_FILES))))
 
 # Now remove any trailing / or /./ from the list. This is optional
 # as the Linux version of mkdir understands what to do with them
@@ -39,12 +49,7 @@ _ := $(shell $(MKPATH) $(BUILD_FOLDERS))
 # for the c and assembler files in this module.
 #
 $(MODULE)_SRC :=
-$(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))
-$(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_ASM))
-ifeq (unittest,$(MAKECMDGOALS))
-  $(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_TEST))
-else
-endif
+$(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_FILES))
 
 # Now transform the filenames ending in [cCsS] into .o files so
 # that we have unique object filenames.

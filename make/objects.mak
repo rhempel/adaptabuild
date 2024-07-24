@@ -24,6 +24,16 @@ $(call log_debug,$(MODULE)_CDEFS is $($(MODULE)_CDEFS))
 $(MODULE)_CFLAGS := $(addprefix ,$($(MODULE)_CFLAGS) $(CFLAGS))
 $(call log_debug,$(MODULE)_CFLAGS is $($(MODULE)_CFLAGS))
 
+# This decides if the command lines for building an object are sent to
+# standard output or not. Prefixing the make command with "@" suppresses
+# the output. The LOG_BUILD is normally set in the top level adaptabuild.mak
+#
+ifeq (,$(LOG_BUILD))
+  BUILD_PREFIX := @
+else
+  BUILD_PREFIX :=
+endif
+
 # This is a rule to build an object file from a .c file - we take advantage
 # of make's ability to create variables for each object file at build time to
 # set up the INCPATH and CDEFS, the CFLAGS are set at the library_objects.mak
@@ -72,23 +82,23 @@ $(TARGET_STEM)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.c
 	@echo Building $@ from $<
-	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	$(BUILD_PREFIX) $(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.cpp
 	@echo Building $@ from $<
-	@$(CXX) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	$(BUILD_PREFIX) $(CXX) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.C
 	@echo Building $@ from $<
-	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	$(BUILD_PREFIX) $(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.s
 	@echo Building $@ from $<
-	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	$(BUILD_PREFIX) $(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.S
 	@echo Building $@ from $<
-	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	$(BUILD_PREFIX) $(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 # Special handling for _OPT3 objects ... the target stem is different than
 # the previous set so it can have its own target specific variables.
@@ -98,6 +108,6 @@ $(TARGET_STEM)/%.o_opt3: CDEFS   := $($(MODULE)_CDEFS)
 $(TARGET_STEM)/%.o_opt3: CFLAGS  := $($(MODULE)_CFLAGS)
 $(TARGET_STEM)/%.o_opt3: $(PREREQ_STEM)/%.c
 	@echo Building $@ from $<
-	@$(CC) -c -o3 $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	$(BUILD_PREFIX) $(CC) -c -o3 $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 # ----------------------------------------------------------------------------
