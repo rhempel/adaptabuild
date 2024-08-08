@@ -156,6 +156,9 @@ $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): $(MODULE_LIBS) $(LDSCRIPT)
 	$(LD) -g -o $@.elf $(SYSTEM_STARTUP_OBJ) < \
 	      $(BUILD_PATH)/$(PRODUCT_MAIN).o $(WEAK_OVERRIDES) \
               $(LDGROUP) $(LDFLAGS) $(LDMAP) --cref
+	$(OBJCOPY) -O ihex $@.elf $@.hex
+	$(OBJCOPY) -O binary $@.elf $@.bin
+
 
 unittest : $(TESTABLE_MODULES)
 	@echo dkfjvndkfjvnkjn $(TESTABLE_MODULES)
