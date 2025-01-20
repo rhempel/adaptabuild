@@ -5,6 +5,8 @@
 # level adaptabuild.mak where unit testing us supported, like this:
 # 
 # ifeq (unittest,$(MAKECMDGOALS))
+#     TESTABLE_MODULES += $(MODULE)_UNITTEST
+#     $(MODULE)_test_main := path/to/your/test/main.o
 #     include $(ADAPTABUILD_PATH)/make/test/cpputest.mak
 # endif
 # ----------------------------------------------------------------------------
@@ -16,7 +18,7 @@ $(call log_notice,MODULE_SRC_TEST is $($(MODULE)_SRC_TEST))
 # Now transform the filenames ending in .c snd .cpp into .o files so
 # that we have unique object filenames.
 #
-# This allows us to generate and objects, libraries, and other artifacts
+# This allows us to generate any objects, libraries, and other artifacts
 # separately from the source tree.
 #
 $(MODULE)_OBJ_TEST := $(subst $(SRC_PATH),$(BUILD_PATH),\
@@ -56,36 +58,36 @@ $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test: $(BUILD_PATH)/$(MODULE_PATH)/$(MODU
 .PHONY: $(MODULE)_UNITTEST
 
 $(MODULE)_UNITTEST: TEST_MODULE := $(MODULE)
+$(MODULE)_UNITTEST: TEST_MODULE_PATH := $(MODULE_PATH)
 $(MODULE)_UNITTEST: $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test
-	@echo aa $(TEST_MODULE) bb $(BUILD_PATH)/$(MODULE_PATH)/$(TEST_MODULE)_test cc
-
     # Create the artifacts folders
-	mkdir -p $(ARTIFACTS_PATH)/$(TEST_MODULE)/coverage
-	mkdir -p $(ARTIFACTS_PATH)/$(TEST_MODULE)/unittest
+	mkdir -p $(ARTIFACTS_PATH)/$(TEST_MODULE_PATH)/coverage
+	mkdir -p $(ARTIFACTS_PATH)/$(TEST_MODULE_PATH)/unittest
 
     # Create a baseline for code coverage
-	cd $(ARTIFACTS_PATH)/$(TEST_MODULE) && \
-	lcov -z -d --rc lcov_branch_coverage=1 $(ABS_BUILD_PATH)/$(TEST_MODULE)/src
- 
-    # Run the test suite
-	cd $(ARTIFACTS_PATH)/$(TEST_MODULE)/unittest && \
-	$(ABS_BUILD_PATH)/$(TEST_MODULE)/$(TEST_MODULE)_test -k $(TEST_MODULE) -ojunit
- 
-    # Create the test report
-	cd $(ARTIFACTS_PATH)/$(TEST_MODULE)/unittest && \
-	junit2html --merge $(TEST_MODULE).xml *.xml && \
-	junit2html $(TEST_MODULE).xml index.html && \
-	rm *.xml
- 
-    # Update the incremental code coverage
-	cd $(ARTIFACTS_PATH)/$(TEST_MODULE) && \
-	lcov -c -d --rc lcov_branch_coverage=1 $(ABS_BUILD_PATH)/$(TEST_MODULE)/src -o $(TEST_MODULE).info
- 
-    # Create the code coverage report
-	cd $(ARTIFACTS_PATH)/$(TEST_MODULE) && \
-	genhtml --rc genhtml_branch_coverage=1 -o coverage *.info && \
-	rm *.info
+	cd $(ARTIFACTS_PATH)/$(TEST_MODULE_PATH)/coverage && \
+		lcov -z -d --rc lcov_branch_coverage=1 $(ABS_BUILD_PATH)/$(TEST_MODULE_PATH)/src
 
-    # TODO: Clean up each set of artifacts and separate the code coverage
-    #       from the unit test results
+    # Run the test suite, ignoring errors (that's what the - is for) so that
+     # failing tests still genreate a report
+	- cd $(ARTIFACTS_PATH)/$(TEST_MODULE_PATH)/unittest && \
+		$(ABS_BUILD_PATH)/$(TEST_MODULE_PATH)/$(TEST_MODULE)_test -k $(TEST_MODULE) -ojunit
+  
+    # Create the test report
+	cd $(ARTIFACTS_PATH)/$(TEST_MODULE_PATH)/unittest && \
+		junit2html --merge $(TEST_MODULE).xml *.xml && \
+		junit2html $(TEST_MODULE).xml index.html
+
+    # TODO: Add support for transforming the xml test results into
+    #       Jira/Xray JSON format for automatic upload
+
+    # Update the incremental code coverage
+	cd $(ARTIFACTS_PATH)/$(TEST_MODULE_PATH)/coverage && \
+		lcov -c -d --rc lcov_branch_coverage=1 $(ABS_BUILD_PATH)/$(TEST_MODULE_PATH)/src -o $(TEST_MODULE).info
+
+    # Create the code coverage report
+	cd $(ARTIFACTS_PATH)/$(TEST_MODULE_PATH)/coverage && \
+		genhtml --rc genhtml_branch_coverage=1 -o coverage *.info && \
+		rm *.info
+
 # ----------------------------------------------------------------------------
