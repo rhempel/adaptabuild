@@ -25,11 +25,13 @@ $(MODULE)_OBJ_TEST := $(subst $(SRC_PATH),$(BUILD_PATH),\
                         $(subst .c,.o,\
                           $(subst .cpp,.o,$($(MODULE)_SRC_TEST))))
  
- $(call log_notice,MODULE_OBJ_TEST is $($(MODULE)_OBJ_TEST))
+$(call log_notice,MODULE_OBJ_TEST is $($(MODULE)_OBJ_TEST))
 
 $(MODULE)_DEP_TEST := $(subst .o,.d,$($(MODULE)_OBJ_TEST))
 
 $(call log_notice,MODULE_DEP_TEST is $($(MODULE)_DEP_TEST))
+
+-include $(MODULE)_DEP_TEST
 
 # Add the module specific library to the list of modules that must
 # be built for the project. Note that we store the library with the

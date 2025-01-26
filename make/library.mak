@@ -41,10 +41,10 @@ _ := $(shell $(MKPATH) $(BUILD_FOLDERS))
 $(MODULE)_SRC :=
 $(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))
 $(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_ASM))
-ifeq (unittest,$(MAKECMDGOALS))
-  $(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_TEST))
-else
-endif
+# ifeq (unittest,$(MAKECMDGOALS))
+#   $(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_TEST))
+# else
+# endif
 
 # Now transform the filenames ending in [cCsS] into .o files so
 # that we have unique object filenames.
@@ -59,7 +59,11 @@ $(MODULE)_OBJ   := $(subst $(SRC_PATH),$(BUILD_PATH),\
                            $(subst .s,.o,\
                              $(subst .S,.o,$($(MODULE)_SRC)))))))
 
+$(call log_notice,MODULE_OBJ is $($(MODULE)_OBJ))
+
 $(MODULE)_DEP := $(subst .o,.d,$($(MODULE)_OBJ))
+
+$(call log_notice,MODULE_DEP is $($(MODULE)_DEP))
 
 -include $(MODULE)_DEP
 

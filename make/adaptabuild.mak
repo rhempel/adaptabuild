@@ -124,7 +124,7 @@ include $(MCU_MAK)
 # Not sure if this is needed - do we need a rule about how to name a module?
 # or if a product should have at least a dummy file - normally we have main.c
 # in the product folder
-include $(SRC_PATH)/$(PRODUCT)/adaptabuild.mak
+-include $(SRC_PATH)/$(PRODUCT)/adaptabuild.mak
 
 $(call log_notice,TESTABLE_MODULES is $(TESTABLE_MODULES))
 
