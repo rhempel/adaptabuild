@@ -68,7 +68,7 @@ $(MODULE)_UNITTEST: $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test
 
     # Create a baseline for code coverage
 	cd $(ARTIFACTS_PATH)/$(TEST_MODULE_PATH)/coverage && \
-		lcov -z -d --rc lcov_branch_coverage=1 $(ABS_BUILD_PATH)/$(TEST_MODULE_PATH)/src
+		lcov -z -d --rc branch_coverage=1 $(ABS_BUILD_PATH)/$(TEST_MODULE_PATH)/src
 
     # Run the test suite, ignoring errors (that's what the - is for) so that
      # failing tests still genreate a report
@@ -85,11 +85,11 @@ $(MODULE)_UNITTEST: $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test
 
     # Update the incremental code coverage
 	cd $(ARTIFACTS_PATH)/$(TEST_MODULE_PATH)/coverage && \
-		lcov -c -d --rc lcov_branch_coverage=1 $(ABS_BUILD_PATH)/$(TEST_MODULE_PATH)/src -o $(TEST_MODULE).info
+		lcov -c -d --rc branch_coverage=1 $(ABS_BUILD_PATH)/$(TEST_MODULE_PATH)/src -o $(TEST_MODULE).info
 
     # Create the code coverage report
 	cd $(ARTIFACTS_PATH)/$(TEST_MODULE_PATH)/coverage && \
-		genhtml --rc genhtml_branch_coverage=1 *.info && \
+		genhtml --rc branch_coverage=1 -o . *.info && \
 		rm *.info
 
 # ----------------------------------------------------------------------------
