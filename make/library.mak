@@ -39,6 +39,8 @@ _ := $(shell $(MKPATH) $(BUILD_FOLDERS))
 # for the c and assembler files in this module.
 #
 $(MODULE)_SRC :=
+#$(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))
+#$(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_ASM))
 $(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))
 $(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_ASM))
 # ifeq (unittest,$(MAKECMDGOALS))
