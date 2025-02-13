@@ -9,13 +9,17 @@
 # at build time
 
 $(call log_debug,$(MODULE)_INCPATH is $($(MODULE)_INCPATH))
+$(MODULE)_INCPATH := $(call make_cwd_relative_path,$(abspath $(addprefix $(SRC_PATH)/,$($(MODULE)_INCPATH))))
+$(call log_debug,adjusted $(MODULE)_INCPATH is $($(MODULE)_INCPATH))
+
 $(call log_debug,LIBC_INCPATH is $(LIBC_INCPATH))
 
 # NOTE: The $(addprefix) function also strips whitespace from around the
 #       variable(s) as a side effect. In the case of CFLAGS we add an
 #       empty prefix to stay consistent instead of using the $(strip) function.
 
-$(MODULE)_INCPATH := $(addprefix -I $(SRC_PATH)/,$(LIBC_INCPATH) $($(MODULE)_INCPATH))
+# $(MODULE)_INCPATH := $(addprefix -I $(SRC_PATH)/,$(LIBC_INCPATH) $($(MODULE)_INCPATH))
+$(MODULE)_INCPATH := $(addprefix -I ,$(LIBC_INCPATH) $($(MODULE)_INCPATH))
 $(call log_debug,$(MODULE)_INCPATH is $($(MODULE)_INCPATH))
 
 $(MODULE)_CDEFS := $(addprefix -D,$($(MODULE)_CDEFS) $(CDEFS))
@@ -51,11 +55,81 @@ $(call log_debug,$(MODULE)_CFLAGS is $($(MODULE)_CFLAGS))
 # $(PREREQ_STEM)/foo.c
 #----------------------------------------------------------------------------
 
+## BUILD_FOLDERS := $(addprefix $(MODULE_PATH)/,$(sort $(dir $(SRC_C) $(SRC_ASM) $(SRC_TEST))))
+## BUILD_FOLDERS := $(addprefix $(BUILD_PATH)/,$(BUILD_FOLDERS))
+## 
+## # Normalize the BUILD_FOLDERS
+## 
+## $(call log_notice,BUILD_FOLDERS: $(BUILD_FOLDERS))
+## 
+## BUILD_FOLDERS := $(call make_cwd_relative_path,$(abspath $(BUILD_FOLDERS)))
+## $(call log_notice,adjusted BUILD_FOLDERS: $(BUILD_FOLDERS))
+## 
+## #BUILD_FOLDERS := $(abspath $(BUILD_FOLDERS))
+## #$(call log_notice,normalized BUILD_FOLDERS: $(BUILD_FOLDERS))
+## #
+## #ifeq (/,$(ABS_CWD_PATH))
+## #  BUILD_FOLDERS := $(subst _$(ABS_CWD_PATH),,_$(BUILD_FOLDERS))
+## #else
+## #  BUILD_FOLDERS := $(subst _$(ABS_CWD_PATH)/,,_$(BUILD_FOLDERS))
+## #endif
+## #$(call log_notice,cwd relative BUILD_FOLDERS: $(BUILD_FOLDERS))
+
 TARGET_STEM := $(BUILD_PATH)/$(MODULE_PATH)
-# $(info TARGET_STEM is $(TARGET_STEM))
+$(call log_info,TARGET_STEM is $(TARGET_STEM))
+
+
+TARGET_STEM := $(call make_cwd_relative_path,$(abspath $(TARGET_STEM)))
+$(call log_info,adjusted TARGET_STEM is $(TARGET_STEM))
+
+# Now remove any trailing / or /. and replace /./ with /
+#
+#TARGET_STEM := $(patsubst %/,%,$(TARGET_STEM))
+#$(call log_info,TARGET_STEM is $(TARGET_STEM))
+# TARGET_STEM := $(patsubst %/.,%,$(TARGET_STEM))
+# $(call log_info,TARGET_STEM is $(TARGET_STEM))
+# TARGET_STEM := $(subst /./,/,$(TARGET_STEM))
+# $(call log_info,TARGET_STEM is $(TARGET_STEM))
+# #TARGET_STEM := $(subst ./,,$(TARGET_STEM))
+# #$(call log_info,TARGET_STEM is $(TARGET_STEM))
+
+#TARGET_STEM := $(abspath $(TARGET_STEM))
+#$(call log_info,TARGET_STEM is $(TARGET_STEM))
+#
+#ifeq (/,$(ABS_CWD_PATH))
+#  TARGET_STEM := $(subst _$(ABS_CWD_PATH),,_$(TARGET_STEM))
+#else
+#  TARGET_STEM := $(subst _$(ABS_CWD_PATH)/,,_$(TARGET_STEM))
+#endif
+#$(call log_info,TARGET_STEM is $(TARGET_STEM))
+
 
 PREREQ_STEM := $(SRC_PATH)/$(MODULE_PATH)
-# $(info PREREQ_STEM is $(PREREQ_STEM))
+$(call log_info,PREREQ_STEM is $(PREREQ_STEM))
+
+PREREQ_STEM := $(call make_cwd_relative_path,$(abspath $(PREREQ_STEM)))
+$(call log_info,adjusted PREREQ_STEM is $(PREREQ_STEM))
+
+# Now remove any trailing / or /. and replace /./ with /
+#
+#PREREQ_STEM := $(patsubst %/,%,$(PREREQ_STEM))
+#$(call log_info,PREREQ_STEM is $(PREREQ_STEM))
+#PREREQ_STEM := $(patsubst %/.,%,$(PREREQ_STEM))
+#$(call log_info,PREREQ_STEM is $(PREREQ_STEM))
+#PREREQ_STEM := $(subst /./,/,$(PREREQ_STEM))
+#$(call log_info,PREREQ_STEM is $(PREREQ_STEM))
+#PREREQ_STEM := $(subst ./,,$(PREREQ_STEM))
+#$(call log_info,PREREQ_STEM is $(PREREQ_STEM))
+
+# PREREQ_STEM := $(abspath $(PREREQ_STEM))
+# $(call log_info,PREREQ_STEM is $(PREREQ_STEM))
+# 
+# ifeq ($(ABS_SRC_PATH),$(PREREQ_STEM))
+#   PREREQ_STEM := $(subst _$(ABS_SRC_PATH),,_$(PREREQ_STEM))
+# else
+#   PREREQ_STEM := $(subst _$(ABS_SRC_PATH)/,,_$(PREREQ_STEM))
+# endif
+# $(call log_info,PREREQ_STEM is $(PREREQ_STEM))
 
 # These are the target specific variables, and when the same target can
 # be built from multiple dependencies, only the LAST set of target specific
