@@ -96,6 +96,7 @@ $(MODULE)_SRC :=
 
 #$(MODULE)_SRC := $(call make_src_relative_files,$(abspath $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))))
 $(call log_notice,SRC_C is $(SRC_C))
+$(call log_notice,SRC_ASM is $(SRC_ASM))
 
 #$(MODULE)_SRC := $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))
 #$(call log_notice,$(MODULE)_SRC is $($(MODULE)_SRC))
@@ -104,17 +105,19 @@ $(call log_notice,SRC_C is $(SRC_C))
 
 
 # Consider replacing $(SRC_PATH)/$(MODULE_PATH) with $(PREREQ_STEM)
-$(MODULE)_SRC := $(call make_src_relative_files,$(abspath $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))))
-$(call log_notice,$(MODULE)_SRC is $($(MODULE)_SRC))
-
-$(MODULE)_SRC += $(call make_src_relative_files,$(abspath $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_ASM))))
-$(call log_notice,$(MODULE)_SRC is $($(MODULE)_SRC))
+# $(MODULE)_SRC := $(call make_src_relative_files,$(abspath $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))))
+# $(call log_notice,$(MODULE)_SRC is $($(MODULE)_SRC))
+# 
+# $(MODULE)_SRC += $(call make_src_relative_files,$(abspath $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_ASM))))
+# $(call log_notice,$(MODULE)_SRC is $($(MODULE)_SRC))
 
 #ifeq (unittest,$(MAKECMDGOALS))
 ##  $(MODULE)_SRC += $(call make_src_relative_files,$(abspath $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_TEST))))
 #  $(call log_notice,$(MODULE)_SRC is $($(MODULE)_SRC))
 #else
 #endif
+
+$(MODULE)_SRC := $(SRC_C) $(SRC_ASM)
 
 $(call log_notice,$(MODULE)_SRC is $($(MODULE)_SRC))
 
