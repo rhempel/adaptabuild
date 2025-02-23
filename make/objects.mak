@@ -22,7 +22,7 @@ $(call log_debug,LIBC_INCPATH is $(LIBC_INCPATH))
 $(MODULE)_INCPATH := $(addprefix -I ,$(LIBC_INCPATH) $($(MODULE)_INCPATH))
 $(call log_debug,$(MODULE)_INCPATH is $($(MODULE)_INCPATH))
 
-$(MODULE)_CDEFS := $(addprefix -D,$($(MODULE)_CDEFS) $(CDEFS))
+$(MODULE)_CDEFS := $(addprefix -D ,$($(MODULE)_CDEFS) $(CDEFS))
 $(call log_debug,$(MODULE)_CDEFS is $($(MODULE)_CDEFS))
 
 $(MODULE)_CFLAGS := $(addprefix ,$($(MODULE)_CFLAGS) $(CFLAGS))
