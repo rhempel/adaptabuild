@@ -59,22 +59,29 @@ MKPATH := mkdir -p
 # 2. Run from /home/you                 -> ROOT_PATH = path/to/project/
 # 3. Run from /                         -> ROOT_PATH = /home/you/path/to/project/
 #
-# We will need to trim the leading and trailing "/" characters to get a path that
-# we can use in a make variable so that it's easier to read. For example the 
-# BUILD_PATH (which must not be a pre-existing diretory) is defined as:
+# Adaptabuild will trim any leading or trailing "/" characters to get a path that
+# we can use in a make variable that can be used to build new paths.
 #
-# BUILD_PATH := $(ROOT_PATH)/build
+# For example, the BUILD_PATH is where we put all of the intermediate
+# object, dependency, and library files that go into building the final
+# product binary. I't a good idea to separate these intermediate files
+# from the source code so that it's easier to set up the `.gitignore` file.
+#
+# BUILD_PATH should never be the same as ROOT_PATH, for example:
+#
+# BUILD_PATH := $(ROOT_PATH)/path/to/build
 #
 # Similarly, we can define the SRC_PATH like this:
 #
-# SRC_PATH := $(ROOT_PATH)     --
-# SRC_PATH := $(ROOT_PATH)/     |- These are all equivalent and result in .
-# SRC_PATH := $(ROOT_PATH)/.   --
-# SRC_PATH := $(ROOT_PATH)/src
+# SRC_PATH := $(ROOT_PATH)/path/to/src
 #
-# Note that there are some cases - such as a submodule that you want to reuse and have
-# separate test cases and build procedures for - where one of the first three forms
-# is preferred.
+# SRC_PATH may be the same as ROOT_PATH if we are building a module for
+# an automated unit test independent of a project. The following forms
+# are all equivalent:
+#
+# SRC_PATH := $(ROOT_PATH)
+# SRC_PATH := $(ROOT_PATH)/
+# SRC_PATH := $(ROOT_PATH)/.
 #
 # Finally, each of the modules or products in a project will have a path that is
 # relative to the SRC_PATH. This is very important because it allows us to create
@@ -82,112 +89,70 @@ MKPATH := mkdir -p
 # module lives in your project's SRC_PATH. 
 #
 # One of the key design goals of the adaptabuild syste is that the make runs from one
-# dircetory - your current directory, and it can be anywhere in the filesystem.
+# directory - your current directory, and it can be anywhere in the filesystem.
 #
 # That means your module level makefiles don't care where they are located, adaptabuild
 # figures out all the paths to your source and build files.
 #
-# Rather than continuously simplifying and cleaning up the paths, we do it once when
-# building the patten stems...
-  
-
-##     #
-##     # BUILD_PATH is generated from the ROOT_PATH, PRODUCT, and MCU variables
-##     # to guarantee a unique location for object files for each variant.
-##     #
-##     # TARGET_STEM := $(BUILD_PATH)/$(MODULE_PATH)
-##     # PREREQ_STEM := $(SRC_PATH)/$(MODULE_PATH)
-##     #
-##     # When we build a library, the MODULE_PATH is guaranteeed to be relative
-##     # to SRC_PATH, and has no leading / characters.
-##     #
-##     # SRC_PATH is specified with ROOT_PATH as its base - this leads to the
-##     # following cases:
-##     #
-##     # 1. SRC_PATH := $(ROOT_PATH)/some/path
-##     # 2. SRC_PATH := $(ROOT_PATH)/.
-##     # 3. SRC_PATH := $(ROOT_PATH)
-##     #
-##     # The stems are used in rules like this:
-##     #
-##     # $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.c
-##     #
-##     # That works as long as the transformation of a list of source files from
-##     # your module is consistent with this simple pattern match. An example will
-##     # make all of this clear. Let's assume the following minimal example.
-##     #
-##     # MODULE = motor
-##     # SRC_C = core/speed.c main.c
-##     #
-##     # Your module specification calls a function to generate a path to the
-##     # module source that is relative to the ROOT_PATH.
-##     #
-##     # MODULE_PATH := $(call make_current_module_path)
-##     #
-##     # Just like ROOT_PATH and SRC_PATH, the MODULE_PATH can evaluate to "."
-##     # under some conditions. The significance of this will become clean
-##     # shortly.
-##     #
-##     # Your module specification doesn't need to worry about any external
-##     # variables, because the adapatabuild/make/library.mak file transforms
-##     # your file list into something the stem rules can use. THe simplified
-##     # transformation looks like this:
-##     #
-##     # $(MODULE)_SRC := $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))
-##     #
-##     # In the most complex case, this evaluates to soething like this:
-##     #
-##     # motor_SRC := ././core/speed.c ././main.c
-##     #
-##     # Now its time to transform the source file list to an object file list
-##     # for the stem rules. The simplified transformation is something like this:
-##     #
-##     # $(MODULE)_OBJ := $(subst $(SRC_PATH),$(BUILD_PATH),\
-##     #                    $(subst .c,.o,$($(MODULE)_SRC)))
-##     #
-##     # Which _should_ result in:
-##     #
-##     # motor_OBJ := path/to/build/core/speed.c path/to/build/main.c
-##     #
-##     # ... but it doesn't because the $(subst from,to,text) function will
-##     # substitute ALL occurences of the from parameter, and if it's just "."
-##     # the result is multiple substitutions.
-##     #
-##     # The key to fixing the problem is similar to how you fix endianness
-##     # issues. Figure out the permutaitons and FIX IT IN ONE PLACE - ideally
-##     # before you generate the substitutions so you never have to worry
-##     # about it again.
-##     #
-##     # The good news is that make has the $(abspath names...) function to
-##     # transform a string into an absolute value wthout any . or .. components
-##     # nor any repeated path separators (/). For example:
-##     #
-##     # $(abspath ./foo/././../foo///bar)
-##     #
-##     # returns:
-##     #
-##     # /path/to/your/current/directory/foo/bar
-##     #
-##     # To get the value of that complex path relative to ROOT_PATH we can do
-##     # something like this:
-##     #
-##     # $(subst _$(abspath .),,_$(abspath ./foo/././../foo///bar)))
-##     #
-##     # Note the following special features of this transformation:
-##     #
-##     # 1. There is  "_" prefix character before the from and text parameters
-##     #    to prevent the special case of running make from the root of
-##     #    your filesystem from breaking the subst function.
-##     # 2. The to string is empty, which is represented by ",," - it's the
-##     #    only way to represent nothing in make.
-##     #
-##     # We can now make a summary and tests for all of the special cases that
-##     # we need to cover:
-##     #
-##     # 
-##     #
-
-strip_trailing_slash = $(patsubst %/,%,$(1))
+# Rather than continuously applying macros to clean up the paths, we take advantage
+# of make's stem rules to simplify our dependency patterns.
+#
+# TARGET_STEM := $(BUILD_PATH)/$(MODULE_PATH)
+# PREREQ_STEM := $(SRC_PATH)/$(MODULE_PATH)
+#
+# The stems are used in rules like this:
+#
+# $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.c
+#
+# We want the longest possible stems so that we can tell the difference
+# between a filename that is common to two modules. For example, if there
+# is a file called `util.c` in module_A and module_B, the stem rules
+# for each of the modules look like this:
+# 
+# $(BUILD_PATH)/module_A/util.c
+# $(BUILD_PATH)/module_B/util.c
+#
+# The % in the stem rules is long enough that adaptabuild will automatically
+# apply the correct module specific compiler definitions or flags that you
+# set up.
+#
+# How does the $(MODULE_PATH) get set? The key is in the `adaptabuild_module.mak`
+# file that is at the root of your module. Here is an example for a module
+# called `motor`:
+#
+# MODULE := motor
+#
+# MODULE_PATH := $(call make_current_module_path)
+#
+# $(MODULE)_PATH := $(MODULE_PATH)
+#
+# Just like ROOT_PATH and SRC_PATH, the MODULE_PATH can evaluate to "."
+# under some conditions. The significance of this will become clear
+# shortly.
+#
+# Your module specification doesn't need to worry about any external make
+# variables, because the adapatabuild/make/library.mak file transforms
+# your file list into something the stem rules can use. THe simplified
+# transformation looks like this:
+#
+# motor_SRC := core/speed.c main.c
+#
+# Now its time to transform the source file list to an object file list
+# for the stem rules. The simplified transformation is something like this:
+#
+# $(MODULE)_OBJ := $(subst .c,.o,$($(MODULE)_SRC)))
+#
+# Which _should_ result in:
+#
+# motor_OBJ := core/speed.o main.o
+#
+# Now we can do a simple string substitution and use the stems once:
+#
+# $(MODULE)_SRC := $(addprefix $(PREREQ_STEM)/,$($(MODULE)_SRC))
+# $(MODULE)_OBJ := $(addprefix $(TARGET_STEM)/,$($(MODULE)_OBJ))
+#
+# The adaptabuild system generates the correct procedure for building
+# the motor module objects and library.
 
 $(call log_info,ROOT_PATH is $(ROOT_PATH))
 
@@ -199,171 +164,51 @@ $(call log_info,ABS_CWD_PATH is $(ABS_CWD_PATH))
 $(call log_info,ABS_ROOT_PATH is $(ABS_ROOT_PATH))
 $(call log_info,ABS_SRC_PATH is $(ABS_SRC_PATH))
 
-# Add a note about the underscore prefix trick to avoid substituring ALL of
-# the / when ABS_CWD_PATH is the root of the file system.
-
 make_cwd_relative_path = $(or $(patsubst /%,%,$(patsubst $(ABS_CWD_PATH)%,%,$(1))),.)
 make_src_relative_path = $(or $(patsubst /%,%,$(patsubst $(ABS_SRC_PATH)%,%,$(1))),.)
 
 make_cwd_relative_files = $(patsubst /%,%,$(patsubst $(ABS_CWD_PATH)%,%,$(1)))
 make_src_relative_files = $(patsubst /%,%,$(patsubst $(ABS_SRC_PATH)%,%,$(1)))
 
-# make_current_module_path = $(dir $(lastword $(MAKEFILE_LIST)))
-make_current_module_path = $(or $(patsubst %/,%,$(patsubst /%,%,$(patsubst $(ABS_SRC_PATH)%,%,$(abspath $(dir $(lastword $(MAKEFILE_LIST))))))),.)
-#make_current_module_path = $(or $(patsubst /%,%,$(patsubst $(ABS_SRC_PATH)%,%,$(dir $(lastword $(MAKEFILE_LIST))))),.)
-#make_current_module_path = $(or $(patsubst /%,%,$(patsubst $(ABS_SRC_PATH)%,%,$(dir $(lastword $(MAKEFILE_LIST))))),.)
-#make_current_module_path = $(or $(patsubst /%,%,$(patsubst $(ABS_SRC_PATH)%,%,$(dir $(lastword $(MAKEFILE_LIST))))),.)
+# This macro deserves some explaining ... the current module path can never be
+# an empty string, otherwise it messes up the pattern matching on the stem rules.
+#
+# The make macros are easier to read if you start from the rightmost function(s).
+#
+# 1. $(abspath $(dir $(lastword $(MAKEFILE_LIST)))) creates the absolute normalized
+#    path to the `adaptabuild_module.mak` for the current module.
+#
+# 2. $(patsubst $(ABS_SRC_PATH)%,%,\ strips off the absolute source path from the
+#    absolute module path resulting in the path of the module relative to the
+#    source directory
+#
+# 3. $(patsubst /%,%,\ strips off leading / characters
+#
+# 4. $(patsubst %/,%,\ strips off trailing / characters
+#
+# 5. $(or (result of 1-4),.) ensures that for the corner case of the module path
+#    is actually the source path, that the module path is at least '.'
+# 
+make_current_module_path = $(or $(patsubst %/,%,\
+                                  $(patsubst /%,%,\
+                                    $(patsubst $(ABS_SRC_PATH)%,%,\
+                                      $(abspath $(dir $(lastword $(MAKEFILE_LIST))))))),\
+                                .)
 
+# Now that we have the MODULE_PATH normalized, we can do the same for the
+# ROOT_PATH and SRC_PATH, because they are used to build the TARGET_STEM
+# and PREREQ_STEM.
+#
+# Here we modify the existing values to make them relative to the
+# directory we are in when running make.
+#
 ROOT_PATH := $(call make_cwd_relative_path,$(ABS_ROOT_PATH))
 SRC_PATH := $(call make_cwd_relative_path,$(ABS_SRC_PATH))
 
 $(call log_info,adjusted ROOT_PATH is $(ROOT_PATH))
 $(call log_info,adjusted SRC_PATH is $(SRC_PATH))
 
-# ABS_ROOT_PATH := $(abspath $(ROOT_PATH))
-# ABS_SRC_PATH := $(abspath $(SRC_PATH))
-# 
-# $(call log_info,ABS_CWD_PATH is $(ABS_CWD_PATH))
-# $(call log_info,ABS_ROOT_PATH is $(ABS_ROOT_PATH))
-# $(call log_info,ABS_SRC_PATH is $(ABS_SRC_PATH))
-# 
-# # Handle the special cases of substitutions if running from /
-# #
-# ifeq (/,$(ABS_CWD_PATH))
-#   make_cwd_relative_path = $(subst _/,,_$1)
-# else
-#   make_cwd_relative_path = $(subst _$(ABS_CWD_PATH)/,,_$1)
-# endif
-# 
-# # Normalize the ROOT_PATH relative to the CWD_PATH taking care of
-# # the special case when they are equal
-# #
-# ifeq ($(ABS_CWD_PATH),$(ABS_ROOT_PATH))
-#   ROOT_PATH := .
-# else
-#   ROOT_PATH :=  $(call make_cwd_relative_path,$(ABS_ROOT_PATH))
-# endif
-# 
-# $(call log_info,adjusted ROOT_PATH is $(ROOT_PATH))
-# 
-# # Normalize the SRC_PATH relative to the CWD_PATH taking care of
-# # the special case when they are equal
-# #
-# ifeq ($(ABS_CWD_PATH),$(ABS_SRC_PATH))
-#   SRC_PATH := .
-# else
-#   SRC_PATH :=  $(call make_cwd_relative_path,$(ABS_SRC_PATH))
-# endif
-# 
-# $(call log_info,adjusted SRC_PATH is $(SRC_PATH))
-# 
-
 $(call log_info,-----------------------------------)
-
-### 
-### COMPLEX_PATH := ./foo/././../foo///bar
-### 
-### $(call log_info,COMPLEX_PATH is $(COMPLEX_PATH))
-### 
-### ABS_COMPLEX_PATH := $(abspath $(COMPLEX_PATH))
-### 
-### $(call log_info,ABS_COMPLEX_PATH is $(ABS_COMPLEX_PATH))
-### 
-### make_root_relative_path = $(subst _$(ABS_ROOT_PATH),,_$1)
-### 
-### SIMPLIFIED_PATH := $(call make_cwd_relative_path,$(ABS_COMPLEX_PATH))
-### $(call log_info,simplified cwd relative path is $(SIMPLIFIED_PATH))
-### 
-### SIMPLIFIED_PATH := $(call make_root_relative_path,$(ABS_COMPLEX_PATH))
-### $(call log_info,simplified root relative path is $(SIMPLIFIED_PATH))
-### 
-### 
-### # The library builder 
-### # For TARGET_STEM and PREREQ_STEM to be useful as patterns in rules, they
-### # must follow a couple of simple rules:
-### #
-### # 1. They must NEVER be blank because the resulting path would be relative
-### #    to the root of the file system.
-### # 2. They must 
-### 
-### $(call log_info,-----------------------------------)
-### $(call log_info,CWD_PATH is $(abspath .))
-### $(call log_info,complex relative path is $(abspath ./foo/././../foo///bar/fibblesnork.c))
-### 
-### $(call log_info,simplified relative path is $(subst _$(abspath .),,_$(abspath ./foo/././../foo///bar)))
-### 
-### $(call log_info,MAKEFILE_LIST is $(MAKEFILE_LIST))
-### 
-### $(call log_info,this makefile is $(lastword $(MAKEFILE_LIST)))
-### 
-$(call log_info,-----------------------------------)
-
-
-### $(call log_info,ROOT_PATH is $(ROOT_PATH))
-### $(call log_info,ADAPTABUILD_PATH is $(ADAPTABUILD_PATH))
-### $(call log_info,SRC_PATH is $(SRC_PATH))
-### 
-### 
-### # We use substitution using the wildcard (%) pattern to simplifying the
-### # generated file and path names. Unfortunately the pattern matching
-### # breaks down under some conditions, so we need to normalize the
-### # path names as much as possible.
-### #
-### ABS_PATH := $(patsubst %/,%,$(realpath ./$(ROOT_PATH)))
-### ABS_ROOT_PATH := $(abspath $(ROOT_PATH))
-### ABS_SRC_PATH := $(abspath $(SRC_PATH))
-### 
-### $(call log_info,ABS_PATH is $(ABS_PATH))
-### $(call log_info,absolute ROOT_PATH is $(abspath $(ABS_ROOT_PATH)))
-### $(call log_info,absolute SRC_PATH is $(abspath $(ABS_SRC_PATH)))
-### 
-### ifeq ($(ABS_ROOT_PATH),$(ABS_SRC_PATH))
-###   SRC_PATH := .
-### else
-###   SRC_PATH := $(subst $(ABS_ROOT_PATH)/,,$(ABS_SRC_PATH))
-### endif
-### 
-### 
-### # ROOT_RELATIVE_SRC_PATH := $(subst $(ABS_ROOT_PATH)/,,$(ABS_SRC_PATH))
-### # 
-### # $(call log_info,root relative SRC_PATH is $(ROOT_RELATIVE_SRC_PATH))
-### # 
-### # # If the ROOT_RELATIVE_SRC_PATH is blank, set SRC_PATH to .
-### # #
-### # ifeq (,$(ROOT_RELATIVE_SRC_PATH))
-### #   SRC_PATH := .
-### # else
-### #   SRC_PATH := ./$(ROOT_RELATIVE_SRC_PATH)
-### # endif
-### # 
-### # #SRC_PATH := $(ROOT_RELATIVE_SRC_PATH)
-###   
-### $(call log_info,SRC_PATH is $(SRC_PATH))
-
-
-# The $(make_current_module_path module) is used to create the $(MODULE_PATH) variable
-# that has local file scope. From there the 
-# Note the use of = (not :=) to defer evaluation until it is called
-#
-# Note also that for this conditional to work, $(ROOT_PATH) must be defined before
-# the conditional is evaluated
-#
-
-#ifeq (,$(SRC_PATH))
-#  make_current_module_path = $(patsubst $(SRC_PATH)/%/,%,$(ROOT_PATH)/$(dir $(lastword $(MAKEFILE_LIST))))
-#else
-#ifeq (./.,$(SRC_PATH))
-#  make_current_module_path = $(patsubst $(SRC_PATH)/%/,%,$(ROOT_PATH)/$(dir $(lastword $(MAKEFILE_LIST))))
-
-# ifeq ($(SRC_PATH),$(ROOT_PATH))
-#   make_current_module_path = .
-# #else ifeq (.,$(ROOT_PATH))
-# #  make_current_module_path = $(patsubst $(SRC_PATH)/%/,%,$(ROOT_PATH)/$(dir $(lastword $(MAKEFILE_LIST))))
-# else
-#   make_current_module_path = $(patsubst $(SRC_PATH)/%,%,$(dir $(lastword $(MAKEFILE_LIST))))
-# endif
-
-#make_current_module_path = $(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
 
 # ----------------------------------------------------------------------------
 # The are GLOBAL variables that may be updated by included makefiles
@@ -371,7 +216,8 @@ $(call log_info,-----------------------------------)
 # We define them to be empty strings here so that it's clear that they are
 # needed.
 #
-
+# Note, there is a mechanism for module-level variables as well.
+#
 CDEFS :=
 CFLAGS :=
 LDFLAGS :=
@@ -380,12 +226,6 @@ DEPFLAGS :=
 MODULE_LIBS :=
 
 TESTABLE_MODULES :=
-
-# ----------------------------------------------------------------------------
-# Do NOT move this include - it MUST be before the definition of MCU_MAK
-#
-# SRC_PATH   := $(ROOT_PATH)/src
-# $(call log_info,SRC_PATH is $(SRC_PATH))
 
 # ----------------------------------------------------------------------------
 # Do NOT move this include - it MUST be after the definition of SRC_PATH
@@ -403,34 +243,39 @@ $(call log_info,MCU_MAK is $(MCU_MAK))
 # ----------------------------------------------------------------------------
 # Do NOT move this include - it MUST be after the definition of MCU_MAK
 #                                  and before the definition of BUILD_PATH
+#
+# The `adaptabuild_product.mak` file validates PRODUCT commandline argument
+#
 include $(ROOT_PATH)/adaptabuild_product.mak
 $(call log_info,PRODUCT is $(PRODUCT))
 
-# Create BUILD_PATH, taking care of the special case when ROOT_PATH is
-# empty if we are running from the project root already.
-
-# BUILD_PATH := $(or $(ROOT_PATH),.)/build/$(PRODUCT)/$(MCU)
+# Now that we know the ROOT_PATH, PRODUCT and MCU, we can create the fullly
+# qualified BUILD_PATH for this combination. By convention, we use `build`
+# as the pathname but it could be any thing as long as there is no loss
+# of source code if the file is deleted.
+#
+# By specifying the BUILD_PATH in terms of the PRODUCT and MCU, we are
+# able to build the same source for multiple products or targets without
+# mixing up the resulting object files.
+#
 BUILD_PATH := $(ROOT_PATH)/build/$(PRODUCT)/$(MCU)
-
 $(call log_info,BUILD_PATH is $(BUILD_PATH))
 
 ABS_BUILD_PATH := $(abspath $(BUILD_PATH))
-
 $(call log_info,ABS_BUILD_PATH is $(ABS_BUILD_PATH))
 
-# Normalize the BUILD_PATH relative to the CWD_PATH taking care of
-# the special case when they are equal
-#
 BUILD_PATH := $(call make_cwd_relative_path,$(ABS_BUILD_PATH))
-
 $(call log_info,adjusted BUILD_PATH is $(BUILD_PATH))
 
-# Now do the same for artifacts path
+# Now do the same for the ARTIFACTS_PATH
 
 ARTIFACTS_PATH := $(ROOT_PATH)/artifacts/$(PRODUCT)/$(MCU)
-ABS_ARTIFACTS_PATH := $(abspath $(ARTIFACTS_PATH))
-ARTIFACTS_PATH := $(call make_cwd_relative_path,$(ABS_ARTIFACTS_PATH))
+$(call log_info,ARTIFACTS_PATH is $(ARTIFACTS_PATH))
 
+ABS_ARTIFACTS_PATH := $(abspath $(ARTIFACTS_PATH))
+$(call log_info,ABS_ARTIFACTS_PATH is $(ABS_ARTIFACTS_PATH))
+
+ARTIFACTS_PATH := $(call make_cwd_relative_path,$(ABS_ARTIFACTS_PATH))
 $(call log_info,ARTIFACTS_PATH is $(ARTIFACTS_PATH))
 
 # ----------------------------------------------------------------------------
@@ -466,11 +311,16 @@ bif:
 
 # ----------------------------------------------------------------------------
 # Do NOT move this include - it MUST be after the definition of BUILD_PATH
-#                            and before anythiong that depends on MODULE_LIBS
+#                            and before anything that depends on MODULE_LIBS
+#
+# This will include the modules needed to build the top level PRODUCT libs.
+#
 include $(ROOT_PATH)/adaptabuild_artifacts.mak
 
 # ----------------------------------------------------------------------------
 # Do NOT move this include - it cannot be before any target definitions
+#
+# This will include the modules needed to build the MCU specific libs.
 #
 include $(MCU_MAK)
 
@@ -479,20 +329,18 @@ include $(MCU_MAK)
 # in the product folder
 -include $(SRC_PATH)/$(PRODUCT)/adaptabuild_module.mak
 
+# Inform the user about all of the modules that have unit tests available
+#
 $(call log_notice,TESTABLE_MODULES is $(TESTABLE_MODULES))
 
-# $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): LDFLAGS += -T$(LDSCRIPT)
-# $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): $(MODULE_LIBS) $(LDSCRIPT)
-
-#  $(call log_notice,adaptabuild bootloader)
-
+# ----------------------------------------------------------------------------
+# Rules for building a bootloader (if needed)
+#
 ifeq ($(BOOT_LINKER_SCRIPT),)
     bootloader :
 else
     bootloader : $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT).boot
 endif
-
-#    $(call log_notice,adaptabuild bootloader)
 
 BOOT_LDSCRIPT := $(SRC_PATH)/$(PRODUCT)/config/$(MCU)/$(BOOT_LINKER_SCRIPT)
 

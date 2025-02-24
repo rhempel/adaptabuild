@@ -15,7 +15,7 @@ endif
 include $(ADAPTABUILD_PATH)/make/objects.mak
 
 # # ----------------------------------------------------------------------------
-# THIS MUST BE AFTER THE objects.mak so that the PREREQ AND TARTGET stems are correct?
+# THIS MUST BE AFTER THE objects.mak so that the PREREQ AND TARTGET stems are correct.
 # # Include the unit test framework makefile that works for this module
 # # if the target is cpputest
 # 
@@ -41,100 +41,27 @@ $(call log_notice,BUILD_FOLDERS: $(BUILD_FOLDERS))
 BUILD_FOLDERS := $(call make_cwd_relative_path,$(abspath $(BUILD_FOLDERS)))
 $(call log_notice,adjusted BUILD_FOLDERS: $(BUILD_FOLDERS))
 
-# $(call log_notice,BUILD_FOLDERS: $(BUILD_FOLDERS))
-# 
-# BUILD_FOLDERS := $(abspath $(BUILD_FOLDERS))
-# $(call log_notice,normalized BUILD_FOLDERS: $(BUILD_FOLDERS))
-# 
-# ifeq (/,$(ABS_CWD_PATH))
-#   BUILD_FOLDERS := $(subst _$(ABS_CWD_PATH),,_$(BUILD_FOLDERS))
-# else
-#   BUILD_FOLDERS := $(subst _$(ABS_CWD_PATH)/,,_$(BUILD_FOLDERS))
-# endif
-# $(call log_notice,cwd relative BUILD_FOLDERS: $(BUILD_FOLDERS))
-
-
-
-# # Now remove any trailing / or /. and replace /./ with /
-# #
-# BUILD_FOLDERS := $(patsubst %/,%,$(BUILD_FOLDERS))
-# BUILD_FOLDERS := $(patsubst %/.,%,$(BUILD_FOLDERS))
-# 
-# BUILD_FOLDERS := $(subst /./,/,$(BUILD_FOLDERS))
-
 # Now we can create the build folders ...
 #
 $(call log_notice,Forcing creation of: $(BUILD_FOLDERS))
 _ := $(shell $(MKPATH) $(BUILD_FOLDERS))
 
-# Add the $(MODULE)_ prefix to create a unique source filename
-# for the c and assembler files in this module.
+# Force a module specific source files variable to be empty
 #
 $(MODULE)_SRC :=
-#$(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))
-#$(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_ASM))
 
-# ADD A COMMENT HERE ABOUT THE _ TRICK!
-
-# SRC_PREFIX := $(abspath $(SRC_PATH)/$(MODULE_PATH))
-# 
-# $(call log_info,SRC_PREFIX is $(SRC_PREFIX))
-# 
-# ifeq ($(ABS_SRC_PATH),$(SRC_PREFIX))
-#   SRC_PREFIX := .
-# else
-#   SRC_PREFIX := $(subst _$(ABS_SRC_PATH)/,,_$(SRC_PREFIX))
-# endif
-# $(call log_info,SRC_PREFIX is $(SRC_PREFIX))
-
-
-#$(MODULE)_SRC += $(addprefix f_$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))
-#$(MODULE)_SRC += $(addprefix f_$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_ASM))
-
-# $(MODULE)_SRC += $(addprefix $(SRC_PREFIX)/,$(SRC_C))
-# $(MODULE)_SRC += $(addprefix $(SRC_PREFIX)/,$(SRC_ASM))
-
-#$(MODULE)_SRC := $(call make_src_relative_files,$(abspath $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))))
 $(call log_notice,SRC_C is $(SRC_C))
 $(call log_notice,SRC_ASM is $(SRC_ASM))
 
-#$(MODULE)_SRC := $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))
-#$(call log_notice,$(MODULE)_SRC is $($(MODULE)_SRC))
-#$(MODULE)_SRC := $(abspath $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C)))
-#$(call log_notice,$(MODULE)_SRC is $($(MODULE)_SRC))
-
-
-# Consider replacing $(SRC_PATH)/$(MODULE_PATH) with $(PREREQ_STEM)
-# $(MODULE)_SRC := $(call make_src_relative_files,$(abspath $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))))
-# $(call log_notice,$(MODULE)_SRC is $($(MODULE)_SRC))
-# 
-# $(MODULE)_SRC += $(call make_src_relative_files,$(abspath $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_ASM))))
-# $(call log_notice,$(MODULE)_SRC is $($(MODULE)_SRC))
-
-#ifeq (unittest,$(MAKECMDGOALS))
-##  $(MODULE)_SRC += $(call make_src_relative_files,$(abspath $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_TEST))))
-#  $(call log_notice,$(MODULE)_SRC is $($(MODULE)_SRC))
-#else
-#endif
+# Add the module specific C and ASM file to the source list
 
 $(MODULE)_SRC := $(SRC_C) $(SRC_ASM)
 
 $(call log_notice,$(MODULE)_SRC is $($(MODULE)_SRC))
 
-#$(MODULE)_SRC := $(subst /./,/,$($(MODULE)_SRC))
-
-#$(call log_notice,$(MODULE)_SRC is $($(MODULE)_SRC))
-
 # Now transform the filenames ending in [cCsS] into .o files so
 # that we have unique object filenames.
 #
-# This allows us to generate objects, libraries, and other artifacts
-# separately fr suffixes here, and then add the prefixes om the source tree.
-# later to $(MODULE)_SRC and $(MODULE)_OBJ)
-
-### NOTE: We can simplify this! $(MODULE_SRC) is now a list of source relative files
-#         so transform the
-
 $(MODULE)_OBJ := $(subst .c,.o,\
                    $(subst .cpp,.o,\
                      $(subst .C,.o,\
@@ -147,6 +74,9 @@ $(MODULE)_DEP := $(subst .o,.d,$($(MODULE)_OBJ))
 
 $(call log_notice,$(MODULE)_DEP is $($(MODULE)_DEP))
 
+# Magic here: Add the PREREQ_STEM to the source file list
+#             and the TARGET_STEM to the object and dependency lists
+#  
 $(MODULE)_SRC := $(addprefix $(PREREQ_STEM)/,$($(MODULE)_SRC))
 $(MODULE)_OBJ := $(addprefix $(TARGET_STEM)/,$($(MODULE)_OBJ))
 $(MODULE)_DEP := $(addprefix $(TARGET_STEM)/,$($(MODULE)_DEP))
@@ -163,13 +93,7 @@ $(call log_notice,$(MODULE)_DEP is $($(MODULE)_DEP))
 # we need to add the correct dircetory prefixes and file type
 # suffixes
 
-### TODO: FIx THIS OPT3 EXAMPLE
-
-$(MODULE)_SRC_OPT3 := $(addprefix _$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C_OPT3))
-$(MODULE)_SRC_OPT3 := $(subst /./,/,$($(MODULE)_SRC_OPT3))
-
-$(MODULE)_OBJ_OPT3 := $(subst _$(SRC_PATH),$(BUILD_PATH),\
-                        $(subst .c,.o_opt3,$($(MODULE)_SRC_OPT3)))
+$(MODULE)_OBJ_OPT3 := $(subst .c,.o_opt3,$($(MODULE)_SRC_OPT3))
 
 $(MODULE)_DEP_OPT3 := $(subst .o_opt3,.d,$($(MODULE)_OBJ_OPT3))
 
@@ -192,4 +116,3 @@ $(TARGET_STEM)/$(MODULE).a : $($(MODULE)_OBJ) $($(MODULE)_OBJ_OPT3)
 	@$(AR) -cr $@ $?
 
 # ----------------------------------------------------------------------------
-

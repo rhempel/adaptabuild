@@ -16,9 +16,7 @@ ifeq ($(filter $(MCU),$(MCU_LIST)),$(MCU))
     ifeq ($(filter $(MCU),$(PICO2040_LIST)),$(MCU))
         MCU_VARIANT := PICO_2040
         MCU_STARTUP_FILE := crt0.S
-#        MCU_SYSTEM_FILE := system_nrf52
         MCU_LINKER_SCRIPT := memmap_no_flash.ld
-#       MCU_LINKER_SCRIPT := memmap_default.ld
         BOOT_LINKER_SCRIPT := boot_stage2.ld
     else
         $(error MCU_VARIANT not set for $(MCU))
