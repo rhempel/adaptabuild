@@ -3,7 +3,7 @@
 #
 # Invoke the build system with:
 #
-# make -f path/to/adaptabuild.mak MCU=xxx PRODUCT=yyy target
+# make -f path/to/adaptabuild_config.mak MCU=xxx PRODUCT=yyy target
 #
 # AVOID CHANGING THIS FILE - your project specific includes come from the
 #                            adaptabuild.project.mak file
@@ -477,7 +477,7 @@ include $(MCU_MAK)
 # Not sure if this is needed - do we need a rule about how to name a module?
 # or if a product should have at least a dummy file - normally we have main.c
 # in the product folder
--include $(SRC_PATH)/$(PRODUCT)/adaptabuild.mak
+-include $(SRC_PATH)/$(PRODUCT)/adaptabuild_module.mak
 
 $(call log_notice,TESTABLE_MODULES is $(TESTABLE_MODULES))
 

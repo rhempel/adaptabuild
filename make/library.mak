@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 # library.mak - support for building the library for a modukle
 #
-# This file is included at the end of every module level adaptabuild.mak
+# This file is included at the end of every module level adaptabuild_module.mak
 # file, like this:
 #
 #   include $(ADAPTABUILD_PATH)/make/library.mak

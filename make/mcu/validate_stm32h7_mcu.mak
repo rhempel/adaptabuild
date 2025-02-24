@@ -85,7 +85,7 @@ ifeq ($(filter $(MCU),$(MCU_LIST)),$(MCU))
 
 	include $(ADAPTABUILD_PATH)/make/toolchain/arm-none-eabi.mak
 
-	MCU_MAK += third_party/cmsis_core/adaptabuild.mak
-	MCU_MAK += third_party/cmsis_device_h7/adaptabuild.mak
-	MCU_MAK += third_party/stm32h7xx_hal_driver/adaptabuild.mak
+	MCU_MAK += third_party/cmsis_core/adaptabuild_module.mak
+	MCU_MAK += third_party/cmsis_device_h7/adaptabuild_module.mak
+	MCU_MAK += third_party/stm32h7xx_hal_driver/adaptabuild_module.mak
 endif
