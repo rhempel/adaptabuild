@@ -16,6 +16,21 @@
 # ----------------------------------------------------------------------------
 
 MKPATH := mkdir -p
+PYTHON := python3
+
+# ----------------------------------------------------------------------------
+# NOTE: Create a way for all to be defined here so that it is the default
+#       target, but make it a dependency further down so that the real
+#       definition is later
+#
+# NOTE: We can add project or product specific overrides for any of these
+#       steps
+#
+.SUFFIXES :
+
+.PHONY : all clean
+
+all: foo bar bootloader executable baz bif
 
 # NOTE: THIS SHOULD BE EXTRACTED BY SPHINX/HAWKMOTH TO BE AUTOMATICALLY
 #       ADDED TO THE ADAPTABUILD DOCUMENTATION!
