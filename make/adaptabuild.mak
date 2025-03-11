@@ -15,6 +15,8 @@
 # This file may change over time as we continue to develop adaptabuild
 # ----------------------------------------------------------------------------
 
+include $(ADAPTABUILD_PATH)/make/log.mak
+
 MKPATH := mkdir -p
 
 # Note the use of = (not :=) to defer evaluation until it is called
@@ -48,7 +50,7 @@ TESTABLE_MODULES :=
 # Do NOT move this include - it MUST be before the definition of MCU_MAK
 #
 SRC_PATH   := $(ROOT_PATH)/src
-$(info SRC_PATH is $(SRC_PATH))
+$(call log_info,SRC_PATH is $(SRC_PATH))
 
 # ----------------------------------------------------------------------------
 # Do NOT move this include - it MUST be after the definition of SRC_PATH
@@ -61,7 +63,7 @@ $(info SRC_PATH is $(SRC_PATH))
 MCU_MAK :=
 
 include $(ADAPTABUILD_PATH)/make/mcu/validate_mcu.mak
-$(info MCU_MAK is $(MCU_MAK))
+$(call log_info,MCU_MAK is $(MCU_MAK))
 
 # ----------------------------------------------------------------------------
 # Do NOT move this include - it MUST be after the definition of MCU_MAK
@@ -69,10 +71,10 @@ $(info MCU_MAK is $(MCU_MAK))
 include $(ROOT_PATH)/adaptabuild_product.mak
 
 BUILD_PATH := $(ROOT_PATH)/build/$(PRODUCT)/$(MCU)
-$(info BUILD_PATH is $(BUILD_PATH))
+$(call log_info,BUILD_PATH is $(BUILD_PATH))
 
 ARTIFACTS_PATH := $(ROOT_PATH)/artifacts/$(PRODUCT)/$(MCU)
-$(info ARTIFACTS_PATH is $(ARTIFACTS_PATH))
+$(call log_info,ARTIFACTS_PATH is $(ARTIFACTS_PATH))
 
 # ----------------------------------------------------------------------------
 
@@ -92,13 +94,13 @@ $(info ARTIFACTS_PATH is $(ARTIFACTS_PATH))
 all: foo bar baz bif
 
 foo:
-    $(info foo)
+    $(info adaptabuild foo)
 
 bar:
-    $(info bar)
+    $(info adaptabuild bar)
 
 baz:
-    $(info baz)
+    $(info adaptabuild baz)
 
 bif: $(BUILD_PATH)/product/$(PRODUCT)/$(PRODUCT)
 
@@ -135,8 +137,8 @@ $(BUILD_PATH)/product/$(PRODUCT)/$(PRODUCT): $(MODULE_LIBS) $(LDSCRIPT)
 # ----------------------------------------------------------------------------
 # Set up for unit testing of a specific module
 
-$(info TEST_MODULE is $(TEST_MODULE))
-$(info TESTABLE_MODULES is $(TESTABLE_MODULES))
+$(call log_debug,TEST_MODULE is $(TEST_MODULE))
+$(call log_debug,TESTABLE_MODULES is $(TESTABLE_MODULES))
 
 ifeq (unittest,$(MAKECMDGOALS))
     ifneq ($(filter $(TEST_MODULE),$(TESTABLE_MODULES)),)
@@ -153,11 +155,11 @@ endif
 # Find a way to change to a directory and make all subsequent calls
 # relative to that location
 
-$(info BUILD_PATH/TEST_MODULE is $(BUILD_PATH)/$(TEST_MODULE))
+$(call log_debug,BUILD_PATH/TEST_MODULE is $(BUILD_PATH)/$(TEST_MODULE))
 
 TEST_MODULE_LIB := $(BUILD_PATH)/$(TEST_MODULE)/$(TEST_MODULE).a
 
-$(info TEST_MODULE_LIB is $(TEST_MODULE_LIB))
+$(call log_debug,TEST_MODULE_LIB is $(TEST_MODULE_LIB))
 
 unittest: $(BUILD_PATH)/$(TEST_MODULE)/$(TEST_MODULE)_unittest $(TEST_MODULE_LIB) artifacts_foo
 
