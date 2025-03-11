@@ -57,7 +57,7 @@ PREREQ_STEM := $(ROOT_PATH)/$(SRC_PATH)/$(MODULE_PATH)
 #
 # Note that the target stem is ALWAYS the same: $(TARGET_STEM)/%.o
 
-$(TARGET_STEM)/%.o: INCPATH := $($(MODULE)_INCPATH) -I $(LIBC_INCPATH)
+$(TARGET_STEM)/%.o: INCPATH := $($(MODULE)_INCPATH)
 $(TARGET_STEM)/%.o: CDEFS   := $($(MODULE)_CDEFS)
 $(TARGET_STEM)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
 
@@ -92,14 +92,5 @@ $(TARGET_STEM)/%.o_opt3: CFLAGS  := $($(MODULE)_CFLAGS)
 $(TARGET_STEM)/%.o_opt3: $(PREREQ_STEM)/%.c
 	@echo Building $@ from $<
 	@$(CC) -c -o3 $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
-
-# # Special support for building test sources with different flags
-# 
-# $($(MODULE)_TEST_BUILDPATH)/%.o: INCPATH := $($(MODULE)_INCPATH)
-# $($(MODULE)_TEST_BUILDPATH)/%.o: CDEFS   := $($(MODULE)_CDEFS)
-# $($(MODULE)_TEST_BUILDPATH)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
-# $($(MODULE)_TEST_BUILDPATH)/%.o: $($(MODULE)_TEST_SRCPATH)/%.c
-#	@echo Building $@ from $<
-#	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) -o $@ $<
 
 # ----------------------------------------------------------------------------
