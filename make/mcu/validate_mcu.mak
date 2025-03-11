@@ -18,21 +18,10 @@ ifndef MCU
 endif
 
 # ----------------------------------------------------------------------------
-# Off-target unit testing
+# Check for any MCUs that we support
 # ----------------------------------------------------------------------------
 
-ifeq (unittest,$(MAKECMDGOALS))
-	override MCU := unittest
-
-    include $(ADAPTABUILD_PATH)/make/toolchain/x86_64.mak
-
-    MAKEFILE_DIR=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
-    CPPUTEST_HOME=/usr/include/CppUTest
-endif
-
-# ----------------------------------------------------------------------------
-# Check for any other MCU that we support
-# ----------------------------------------------------------------------------
+include $(ADAPTABUILD_PATH)/make/mcu/validate_host_mcu.mak
 
 include $(ADAPTABUILD_PATH)/make/mcu/validate_stm32f0_mcu.mak
 include $(ADAPTABUILD_PATH)/make/mcu/validate_stm32h7_mcu.mak
