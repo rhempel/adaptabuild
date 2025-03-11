@@ -173,7 +173,7 @@ $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): $(MODULE_LIBS) $(LDSCRIPT)
 	$(OBJCOPY) -O binary $@.elf $@.bin
 
 unittest : $(TESTABLE_MODULES)
-	@echo dkfjvndkfjvnkjn $(TESTABLE_MODULES)
+	@echo Testable Modules $(TESTABLE_MODULES)
 
 # ----------------------------------------------------------------------------
 # .PHONY targets that provide some eye candy for the make log

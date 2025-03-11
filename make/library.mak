@@ -20,7 +20,7 @@ include $(ADAPTABUILD_PATH)/make/objects.mak
 # Without these directories already in place, the dependency and object
 # files cannot be created.
 #
-BUILD_FOLDERS := $(addprefix $(MODULE_PATH)/,$(sort $(dir $(SRC_C) $(SRC_ASM))))
+BUILD_FOLDERS := $(addprefix $(MODULE_PATH)/,$(sort $(dir $(SRC_C) $(SRC_ASM) $(SRC_TEST))))
 
 # Now remove any trailing / or /./ from the list. This is optional
 # as the Linux version of mkdir understands what to do with them

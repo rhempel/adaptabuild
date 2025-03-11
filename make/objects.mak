@@ -76,7 +76,7 @@ $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.c
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.cpp
 	@echo Building $@ from $<
-	@$(CXX) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	$(CXX) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.C
 	@echo Building $@ from $<
