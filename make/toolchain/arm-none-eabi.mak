@@ -15,10 +15,12 @@ OBJCOPY = $(TOOLCHAIN_PREFIX)-objcopy
 #       level - this should only specify the minimum number of flags
 #       and options - same for MICRO_STM32_GCC
 
-CFLAGS += -g -mcpu=$(MCU_ARCH) -ffunction-sections -fdata-sections -ffreestanding
+CFLAGS += -g -mcpu=$(MCU_ARCH) -mtune=$(MCU_ARCH) -mthumb -ffunction-sections -fdata-sections -fno-strict-aliasing
+
+# -ffreestanding
 
 ifeq (hard,$(MCU_FLOAT))
-    CFLAGS += -mfloat-abi=hard
+    CFLAGS += -mfpu=fpv5-d16  -mfloat-abi=hard
     LDFLAGS += -lgcc
 else
     # Do nothing

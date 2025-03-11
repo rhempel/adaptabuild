@@ -75,7 +75,7 @@ $(call log_debug,MODULE_LIBS is: $(MODULE_LIBS))
 # which is handled in module_objects.mak
 
 $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE).a : $($(MODULE)_OBJ) $($(MODULE)_OBJ_OPT3)
-	@echo Building $@
+	@echo Building $@ from $?
 	@$(AR) -cr $@ $?
 
 # ----------------------------------------------------------------------------

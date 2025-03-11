@@ -9,7 +9,8 @@
 # at build time
 
 $(call log_debug,$(MODULE)_INCPATH is $($(MODULE)_INCPATH))
-$(MODULE)_INCPATH := $(addprefix -I $(SRC_PATH)/,$($(MODULE)_INCPATH))
+$(call log_debug,LIBC_INCPATH is $(LIBC_INCPATH))
+$(MODULE)_INCPATH := $(addprefix -I $(SRC_PATH)/,$($(MODULE)_INCPATH) $(LIBC_INCPATH))
 $(call log_debug,$(MODULE)_INCPATH is $($(MODULE)_INCPATH))
 
 $(MODULE)_CDEFS := $(addprefix -D ,$($(MODULE)_CDEFS) $(CDEFS))
@@ -58,7 +59,7 @@ PREREQ_STEM := $(SRC_PATH)/$(MODULE_PATH)
 #
 # Note that the target stem is ALWAYS the same: $(TARGET_STEM)/%.o
 
-$(TARGET_STEM)/%.o: INCPATH := $($(MODULE)_INCPATH) -I $(LIBC_INCPATH)
+$(TARGET_STEM)/%.o: INCPATH := $($(MODULE)_INCPATH)
 $(TARGET_STEM)/%.o: CDEFS   := $($(MODULE)_CDEFS)
 $(TARGET_STEM)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
 
@@ -66,7 +67,7 @@ $(TARGET_STEM)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.c
 	@echo Building $@ from $<
-	$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.cpp
 	@echo Building $@ from $<
@@ -87,7 +88,7 @@ $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.S
 # Special handling for _OPT3 objects ... the target stem is different than
 # the previous set so it can have its own target specific variables.
 
-$(TARGET_STEM)/%.o_opt3: INCPATH := $($(MODULE)_INCPATH)
+# $(TARGET_STEM)/%.o_opt3: INCPATH := $($(MODULE)_INCPATH)
 $(TARGET_STEM)/%.o_opt3: CDEFS   := $($(MODULE)_CDEFS)
 $(TARGET_STEM)/%.o_opt3: CFLAGS  := $($(MODULE)_CFLAGS)
 $(TARGET_STEM)/%.o_opt3: $(PREREQ_STEM)/%.c
