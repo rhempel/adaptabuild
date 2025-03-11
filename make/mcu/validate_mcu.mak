@@ -22,7 +22,7 @@ endif
 # ----------------------------------------------------------------------------
 
 ifeq (unittest,$(MAKECMDGOALS))
-    $(info We are making unittests!)
+#   $(info We are making unittests!)
 	override MCU := unittest
 
     include $(ADAPTABUILD_PATH)/make/toolchain/x86_64.mak
@@ -87,6 +87,7 @@ ifneq ($(filter $(MCU),$(MCU_LIST)),)
 
 # TODO: Add a project level variable to set the location of the HAL
 #       makefile, or take it out of here completely
-
-	MCU_MAK += $(SRC_PATH)/HAL/adaptabuild.mak
+#   $(info MCU_MAK is $(MCU_MAK))
+	MCU_MAK += stm32h7xx_hal_driver/adaptabuild.mak
+#   $(info MCU_MAK is $(MCU_MAK))
 endif

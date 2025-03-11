@@ -17,9 +17,12 @@ include $(ADAPTABUILD_PATH)/make/objects.mak
 #   src/module/src/foo.c
 # from having BOTH occurences of src substituted!
 
-$(MODULE)_SRCPATH := $(addprefix _,$($(MODULE)_SRCPATH))
+# $(info $(MODULE)_SRCPATH is $($(MODULE)_SRCPATH))
+$(MODULE)_SRCPATH := _$(SRC_PATH)/$(MODULE_PATH) $(addprefix _$(SRC_PATH)/$(MODULE_PATH)/,$($(MODULE)_SRCPATH))
+# $(info $(MODULE)_SRCPATH is $($(MODULE)_SRCPATH))
 
 $(MODULE)_OBJPATH := $(subst _$(SRC_PATH),$(BUILD_PATH),$($(MODULE)_SRCPATH))
+# $(info $(MODULE)_OBJPATH is $($(MODULE)_OBJPATH))
 
 # Force the creation of the build directory path(s) that are needed
 # for this library
@@ -29,7 +32,7 @@ $(MODULE)_OBJPATH := $(subst _$(SRC_PATH),$(BUILD_PATH),$($(MODULE)_SRCPATH))
 # $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE).a : $($(MODULE)_OBJPATH))
 # $($(MODULE)_OBJPATH)):
 #     $(MKPATH) $($(MODULE)_OBJPATH))
-$(info Forcing creation of: $($(MODULE)_OBJPATH))
+# $(info Forcing creation of: $($(MODULE)_OBJPATH))
 
 _ := $(shell $(MKPATH) $($(MODULE)_OBJPATH))
 
@@ -37,7 +40,9 @@ _ := $(shell $(MKPATH) $($(MODULE)_OBJPATH))
 # for the c and assembler files in this module.
 
 $(MODULE)_SRC := $(addprefix _$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))
+# $(info $(MODULE)_SRC is $($(MODULE)_SRC))
 $(MODULE)_SRC += $(addprefix _$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_ASM))
+# $(info $(MODULE)_SRC is $($(MODULE)_SRC))
 
 ifeq (unittest,$(MAKECMDGOALS))
   $(MODULE)_SRC += $(addprefix _$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_TEST))
@@ -57,8 +62,11 @@ $(MODULE)_OBJ   := $(subst _$(SRC_PATH),$(BUILD_PATH),\
                        $(subst .C,.o,\
                          $(subst .s,.o,\
                            $(subst .S,.o,$($(MODULE)_SRC))))))
+# $(info $(MODULE)_OBJ is $($(MODULE)_OBJ))
+
 
 $(MODULE)_DEP := $(subst .o,.d,$($(MODULE)_OBJ))
+# $(info $(MODULE)_DEP is $($(MODULE)_DEP))
 
 # This is an example of a way to specify a specific kind of object
 # file option and compile time - in this case we want to compile

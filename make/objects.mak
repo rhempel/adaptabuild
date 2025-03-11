@@ -13,11 +13,19 @@ ifeq (unittest,$(MAKECMDGOALS))
 else
 endif
 
-$(MODULE)_INCPATH := $(addprefix -I ,$($(MODULE)_INCPATH))
+$(MODULE)_INCPATH := $(addprefix -I $(ROOT_PATH)/$(MODULE_PATH)/,$($(MODULE)_INCPATH))
+# $(info $(MODULE)_INCPATH is $($(MODULE)_INCPATH))
+
+$(MODULE)_ROOT_INCPATH := $(addprefix -I $(ROOT_PATH)/,$($(MODULE)_ROOT_INCPATH))
+# $(info $(MODULE)_ROOT_INCPATH is $($(MODULE)_ROOT_INCPATH))
+
+$(MODULE)_INCPATH := $($(MODULE)_INCPATH) $($(MODULE)_ROOT_INCPATH)
 
 $(MODULE)_CDEFS := $(addprefix -D ,$($(MODULE)_CDEFS) $(CDEFS))
+# $(info $(MODULE)_CDEFS is $($(MODULE)_CDEFS))
 
 $(MODULE)_CFLAGS := $($(MODULE)_CFLAGS) $(CFLAGS)
+# $(info $(MODULE)_CFLAGS is $($(MODULE)_CFLAGS))
 
 # This is a rule to build an object file from a .c file - we take advantage
 # of make's ability to create variables for each object file at build time to
@@ -28,19 +36,22 @@ $(MODULE)_CFLAGS := $($(MODULE)_CFLAGS) $(CFLAGS)
 # create another code block like this with the correct object and source suffixes
 # and modufy the build command as needed.
 
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH)
+# $(info SRC_PATH/MODULE_PATH is $(SRC_PATH)/$(MODULE_PATH))
+
+$(BUILD_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH) 
 $(BUILD_PATH)/$(MODULE_PATH)/%.o: CDEFS   := $($(MODULE)_CDEFS)
 $(BUILD_PATH)/$(MODULE_PATH)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
 $(BUILD_PATH)/$(MODULE_PATH)/%.o: $(SRC_PATH)/$(MODULE_PATH)/%.c
 	@echo Building $@ from $<
-	$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
-$(BUILD_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH)
+$(BUILD_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH) fibblesnort
+$(BUILD_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH) 
 $(BUILD_PATH)/$(MODULE_PATH)/%.o: CDEFS   := $($(MODULE)_CDEFS)
 $(BUILD_PATH)/$(MODULE_PATH)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
 $(BUILD_PATH)/$(MODULE_PATH)/%.o: $(SRC_PATH)/$(MODULE_PATH)/%.C
 	@echo Building $@ from $<
-	$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 $(BUILD_PATH)/$(MODULE_PATH)/%.o: INCPATH := $($(MODULE)_INCPATH)
 $(BUILD_PATH)/$(MODULE_PATH)/%.o: CDEFS   := $($(MODULE)_CDEFS)
@@ -72,6 +83,6 @@ $($(MODULE)_TEST_BUILDPATH)/%.o: CDEFS   := $($(MODULE)_CDEFS)
 $($(MODULE)_TEST_BUILDPATH)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
 $($(MODULE)_TEST_BUILDPATH)/%.o: $($(MODULE)_TEST_SRCPATH)/%.c
 	@echo Building $@ from $<
-	$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) -o $@ $<
+	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) -o $@ $<
 
 # ----------------------------------------------------------------------------
