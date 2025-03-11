@@ -2,7 +2,7 @@
 # cpputest.mak - support for building the CppUTest tests for a module
 #
 # This file should be conditionally included at the end of every module
-# level adaptabuild.mak where unit testing us supported, like this:
+# level adaptabuild_module.mak where unit testing us supported, like this:
 # 
 # ifeq (unittest,$(MAKECMDGOALS))
 #     TESTABLE_MODULES += $(MODULE)_UNITTEST

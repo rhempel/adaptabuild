@@ -187,7 +187,7 @@ details.
 
 Vendor Supplied HAL
   Leave the vendor supplied HAL as-is and create your own branch where
-  the only addition is ``adaptabuild.mak`` to build the full HAL as
+  the only addition is ``adaptabuild_module.mak`` to build the full HAL as
   a library. This ensures that when vendor supplied changes come, you
   will have a much easier time merging with those changes.
 
