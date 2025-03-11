@@ -17,11 +17,14 @@ include $(ADAPTABUILD_PATH)/make/objects.mak
 $(MODULE)_OBJPATH := $(addprefix $(BUILD_PATH)/,$($(MODULE)_SRCPATH))
 $(call log_debug,Forcing creation of: $($(MODULE)_OBJPATH))
 
-_ := $(shell $(MKPATH) $($(MODULE)_OBJPATH))
+# Now we can create the build folders ...
+#
+$(call log_notice,Forcing creation of: $(BUILD_FOLDERS))
+_ := $(shell $(MKPATH) $(BUILD_FOLDERS))
 
 # Add the $(MODULE)_ prefix to create a unique source filename
 # for the c and assembler files in this module.
-
+#
 $(MODULE)_SRC :=
 $(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))
 $(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_ASM))
@@ -79,3 +82,4 @@ $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE).a : $($(MODULE)_OBJ) $($(MODULE)_OBJ_OPT3
 	@$(AR) -cr $@ $?
 
 # ----------------------------------------------------------------------------
+
