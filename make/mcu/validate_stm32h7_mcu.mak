@@ -80,6 +80,7 @@ ifeq ($(filter $(MCU),$(MCU_LIST)),$(MCU))
     MCU_FAMILY := stm32h7xx
     MCU_ARCH := cortex-m7
     MCU_LDPATH := thumb/v7e-m+fp/hard
+    MCU_FLOAT := hard
 
 	include $(ADAPTABUILD_PATH)/make/toolchain/arm-none-eabi.mak
 
