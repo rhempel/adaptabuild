@@ -86,23 +86,23 @@ $(TARGET_STEM)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.c
 	@echo Building $@ from $<
-	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	$(ECHO_COMMAND)$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.cpp
 	@echo Building $@ from $<
-	@$(CXX) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	$(ECHO_COMMAND)$(CXX) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.C
 	@echo Building $@ from $<
-	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	$(ECHO_COMMAND)$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.s
 	@echo Building $@ from $<
-	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	$(ECHO_COMMAND)$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.S
 	@echo Building $@ from $<
-	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	$(ECHO_COMMAND)$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 # Special handling for _OPT3 objects ... the target stem is different than
 # the previous set so it can have its own target specific variables.
@@ -111,6 +111,6 @@ $(TARGET_STEM)/%.o_opt3: CDEFS   := $($(MODULE)_CDEFS)
 $(TARGET_STEM)/%.o_opt3: CFLAGS  := $($(MODULE)_CFLAGS)
 $(TARGET_STEM)/%.o_opt3: $(PREREQ_STEM)/%.c
 	@echo Building $@ from $<
-	@$(CC) -c -o3 $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	$(ECHO_COMMAND)$(CC) -c -o3 $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 # ----------------------------------------------------------------------------
