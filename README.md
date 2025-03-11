@@ -38,7 +38,7 @@ You can use ``adaptabuild`` to quickly get a new product variant or POC up
 and running without diving too far into the complexities of ``make``, and where
 you can take advantage of automation to avoid error-prone manual steps.
 
-[!NOTE]  
+[!NOTE]
 This is not the documentation for ``adaptabuild`` - it's an overview. For the
 actual docs [look here](https://github.com/rhempel/adaptabuild) when we have an
 action that build the docs :-)

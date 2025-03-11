@@ -17,15 +17,16 @@ OBJCOPY = $(TOOLCHAIN_PREFIX)-objcopy
 
 CFLAGS += -g -mcpu=$(MCU_ARCH) -ffunction-sections -fdata-sections -ffreestanding
 
-CDEFS := $(MCU_VARIANT) MICRO_STM32_GCC
+CDEFS += $(MCU_VARIANT) MICRO_STM32_GCC
 
 # TODO: Move the actual libraries to be linked into the project level, but
 #       leave the search paths here
+#
+# TODO: Make the architectrure specific path (v5te) a variable that is set
+#       in the mcu verification process
 
 LDFLAGS += --gc-sections
-LDFLAGS += -L /usr/lib/arm-none-eabi/lib/arm/v5te/hard
-LDFLAGS += -lc_nano -lg_nano -lnosys
-LDFLAGS += -L /usr/lib/gcc/arm-none-eabi/10.3.1/arm/v5te/hard
+LDFLAGS += -L /usr/lib/gcc/arm-none-eabi/10.3.1/$(MCU_LDPATH)
 LDFLAGS += -lgcc
 
 # ----------------------------------------------------------------------------

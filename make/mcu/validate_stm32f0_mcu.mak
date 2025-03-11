@@ -98,6 +98,7 @@ ifeq ($(filter $(MCU),$(MCU_LIST)),$(MCU))
 
     MCU_FAMILY := stm32f0xx
     MCU_ARCH := cortex-m0
+    MCU_LDPATH := thumb/v6-m/nofp
 
 	include $(ADAPTABUILD_PATH)/make/toolchain/arm-none-eabi.mak
 
