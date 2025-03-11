@@ -55,42 +55,44 @@ TARGET_STEM := $(ROOT_PATH)/$(BUILD_PATH)/$(MODULE_PATH)
 PREREQ_STEM := $(ROOT_PATH)/$(SRC_PATH)/$(MODULE_PATH)
 # $(info PREREQ_STEM is $(PREREQ_STEM))
 
-$(TARGET_STEM)/%.o: INCPATH := $($(MODULE)_INCPATH) 
+# These are the target specific variables, and when the same target can
+# be built from multiple dependencies, only the LAST set of target specific
+# variables is used. Therefore we define the target specific build variables
+# here in the same block.
+#
+# Note that the target stem is ALWAYS the same: $(TARGET_STEM)/%.o
+
+$(TARGET_STEM)/%.o: INCPATH := $($(MODULE)_INCPATH) -I $(LIBC_INCPATH)
 $(TARGET_STEM)/%.o: CDEFS   := $($(MODULE)_CDEFS)
 $(TARGET_STEM)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
+
+# And now we can define the recipies for the different suffixes [cCsS]
+
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.c
 	@echo Building $@ from $<
-	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+	 $(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
-$(TARGET_STEM)/%.o: INCPATH := $($(MODULE)_INCPATH) 
-$(TARGET_STEM)/%.o: CDEFS   := $($(MODULE)_CDEFS)
-$(TARGET_STEM)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.C
 	@echo Building $@ from $<
 	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
-$(TARGET_STEM)/%.o: INCPATH := $($(MODULE)_INCPATH) 
-$(TARGET_STEM)/%.o: CDEFS   := $($(MODULE)_CDEFS)
-$(TARGET_STEM)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.s
 	@echo Building $@ from $<
-	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COV_FLAGS) -o $@ $<
+	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
-$(TARGET_STEM)/%.o: INCPATH := $($(MODULE)_INCPATH) 
-$(TARGET_STEM)/%.o: CDEFS   := $($(MODULE)_CDEFS)
-$(TARGET_STEM)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.S
 	@echo Building $@ from $<
-	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COV_FLAGS) -o $@ $<
+	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
-# Special handling for _OPT3 objects ...
+# Special handling for _OPT3 objects ... the target stem is different than
+# the previous set so it can have its own target specific variables.
 
 $(TARGET_STEM)/%.o_opt3: INCPATH := $($(MODULE)_INCPATH)
 $(TARGET_STEM)/%.o_opt3: CDEFS   := $($(MODULE)_CDEFS)
 $(TARGET_STEM)/%.o_opt3: CFLAGS  := $($(MODULE)_CFLAGS)
 $(TARGET_STEM)/%.o_opt3: $(PREREQ_STEM)/%.c
 	@echo Building $@ from $<
-	@$(CC) -c -o3 $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COV_FLAGS) -o $@ $<
+	@$(CC) -c -o3 $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
 # Special support for building test sources with different flags
 

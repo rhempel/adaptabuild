@@ -36,6 +36,7 @@ endif
 
 include $(ADAPTABUILD_PATH)/make/mcu/validate_stm32f0_mcu.mak
 include $(ADAPTABUILD_PATH)/make/mcu/validate_stm32h7_mcu.mak
+include $(ADAPTABUILD_PATH)/make/mcu/validate_stm32l4_mcu.mak
 
 # ----------------------------------------------------------------------------
 # Bail out of we still don't know the MCU_ARCH or MCU_VARIANT
