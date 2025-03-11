@@ -24,6 +24,7 @@ endif
 include $(ADAPTABUILD_PATH)/make/mcu/validate_host_mcu.mak
 
 include $(ADAPTABUILD_PATH)/make/mcu/validate_stm32f0_mcu.mak
+include $(ADAPTABUILD_PATH)/make/mcu/validate_stm32g0_mcu.mak
 include $(ADAPTABUILD_PATH)/make/mcu/validate_stm32h7_mcu.mak
 include $(ADAPTABUILD_PATH)/make/mcu/validate_stm32l4_mcu.mak
 
