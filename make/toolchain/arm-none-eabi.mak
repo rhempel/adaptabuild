@@ -38,5 +38,7 @@ LDFLAGS += -L /usr/lib/gcc/arm-none-eabi/10.3.1/$(MCU_LDPATH)
 # ----------------------------------------------------------------------------
 # See https://www.cmcrossroads.com/article/tips-and-tricks-automatic-dependency-generation-masters
 # for the thinking behind the -MD -MP combination!
+#
+# NOTE: Consider using -MMD to check only user header files, not system header files
 
 DEPFLAGS += -MD -MP

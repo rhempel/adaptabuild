@@ -35,3 +35,5 @@ include $(ADAPTABUILD_PATH)/make/mcu/validate_stm32l4_mcu.mak
 ifeq ($(MCU_ARCH),)
     $(error MCU_ARCH is undefined! Was MCU specified correctly?)
 endif
+
+MCU_MAK := $(addprefix $(SRC_PATH)/,$(MCU_MAK))
