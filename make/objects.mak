@@ -8,11 +8,6 @@
 # Add the $(MODULE)_ prefix to create unique compiler flags for this module
 # at build time
 
-ifeq (unittest,$(MAKECMDGOALS))
-  COVFLAGS := -ftest-coverage -fprofile-arcs
-else
-endif
-
 $(MODULE)_INCPATH := $(addprefix -I $(ROOT_PATH)/$(SRC_PATH)/,$($(MODULE)_INCPATH))
 # $(info $(MODULE)_INCPATH is $($(MODULE)_INCPATH))
 
@@ -72,6 +67,10 @@ $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.c
 	@echo Building $@ from $<
 	 $(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
+$(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.cpp
+	@echo Building $@ from $<
+	 $(CXX) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
+
 $(TARGET_STEM)/%.o: $(PREREQ_STEM)/%.C
 	@echo Building $@ from $<
 	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
@@ -94,13 +93,13 @@ $(TARGET_STEM)/%.o_opt3: $(PREREQ_STEM)/%.c
 	@echo Building $@ from $<
 	@$(CC) -c -o3 $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) $(COVFLAGS) -o $@ $<
 
-# Special support for building test sources with different flags
-
-$($(MODULE)_TEST_BUILDPATH)/%.o: INCPATH := $($(MODULE)_INCPATH)
-$($(MODULE)_TEST_BUILDPATH)/%.o: CDEFS   := $($(MODULE)_CDEFS)
-$($(MODULE)_TEST_BUILDPATH)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
-$($(MODULE)_TEST_BUILDPATH)/%.o: $($(MODULE)_TEST_SRCPATH)/%.c
-	@echo Building $@ from $<
-	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) -o $@ $<
+# # Special support for building test sources with different flags
+# 
+# $($(MODULE)_TEST_BUILDPATH)/%.o: INCPATH := $($(MODULE)_INCPATH)
+# $($(MODULE)_TEST_BUILDPATH)/%.o: CDEFS   := $($(MODULE)_CDEFS)
+# $($(MODULE)_TEST_BUILDPATH)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
+# $($(MODULE)_TEST_BUILDPATH)/%.o: $($(MODULE)_TEST_SRCPATH)/%.c
+#	@echo Building $@ from $<
+#	@$(CC) -c $(CDEFS) $(INCPATH) $(CFLAGS) $(DEPFLAGS) -o $@ $<
 
 # ----------------------------------------------------------------------------

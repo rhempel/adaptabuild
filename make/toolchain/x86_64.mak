@@ -4,8 +4,10 @@
 # There should be one of these files for every toolchain variant
 # ----------------------------------------------------------------------------
  
-CC      = g++
+CC      = gcc
+CXX     = g++
 LD      = g++
+#LD      = ld
 AR      = ar
 OBJCOPY = objcopy
 
@@ -16,7 +18,7 @@ CDEFS :=
 CDEFS += 
 
 LDFLAGS :=
-LDFLAGS +=
+LDFLAGS += -L /usr/lib/gcc/x86_64-linux-gnu/11
 
 # ----------------------------------------------------------------------------
 # See https://www.cmcrossroads.com/article/tips-and-tricks-automatic-dependency-generation-masters
