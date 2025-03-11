@@ -12,8 +12,14 @@
 # ----------------------------------------------------------------------------
 
 $(call log_notice,SRC_TEST is $(SRC_TEST))
-$(MODULE)_SRC_TEST := $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_TEST))
-$(call log_notice,MODULE_SRC_TEST is $($(MODULE)_SRC_TEST))
+
+#$(MODULE)_SRC_TEST := $(addprefix _$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_TEST))
+#$(call log_notice,MODULE_SRC_TEST is $($(MODULE)_SRC_TEST))
+##$(MODULE)_SRC_TEST := $(subst /./,/,$($(MODULE)_SRC_TEST))
+#$(call log_notice,MODULE_SRC_TEST is $($(MODULE)_SRC_TEST))
+
+$(MODULE)_SRC_TEST := $(call make_src_relative_files,$(abspath $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_TEST))))
+$(call log_notice,$(MODULE)_SRC_TEST is $($(MODULE)_SRC_TEST))
 
 # Now transform the filenames ending in .c snd .cpp into .o files so
 # that we have unique object filenames.
@@ -21,15 +27,25 @@ $(call log_notice,MODULE_SRC_TEST is $($(MODULE)_SRC_TEST))
 # This allows us to generate any objects, libraries, and other artifacts
 # separately from the source tree.
 #
-$(MODULE)_OBJ_TEST := $(subst $(SRC_PATH),$(BUILD_PATH),\
-                        $(subst .c,.o,\
-                          $(subst .cpp,.o,$($(MODULE)_SRC_TEST))))
- 
+$(MODULE)_OBJ_TEST := $(subst .c,.o,\
+                        $(subst .cpp,.o,$($(MODULE)_SRC_TEST)))
+
 $(call log_notice,MODULE_OBJ_TEST is $($(MODULE)_OBJ_TEST))
 
 $(MODULE)_DEP_TEST := $(subst .o,.d,$($(MODULE)_OBJ_TEST))
 
 $(call log_notice,MODULE_DEP_TEST is $($(MODULE)_DEP_TEST))
+
+$(MODULE)_SRC_TEST := $(subst _$(SRC_PATH),$(SRC_PATH),$($(MODULE)_SRC_TEST))
+$(call log_notice,MODULE_SRC_TEST is $($(MODULE)_SRC_TEST))
+
+$(MODULE)_SRC_TEST := $(addprefix $(PREREQ_STEM)/,$($(MODULE)_SRC_TEST))
+$(MODULE)_OBJ_TEST := $(addprefix $(TARGET_STEM)/,$($(MODULE)_OBJ_TEST))
+$(MODULE)_DEP_TEST := $(addprefix $(TARGET_STEM)/,$($(MODULE)_DEP_TEST))
+
+$(call log_notice,$(MODULE)_SRC_TEST is $($(MODULE)_SRC_TEST))
+$(call log_notice,$(MODULE)_OBJ_TEST is $($(MODULE)_OBJ_TEST))
+$(call log_notice,$(MODULE)_DEP_TEST is $($(MODULE)_DEP_TEST))
 
 -include $(MODULE)_DEP_TEST
 
@@ -39,19 +55,19 @@ $(call log_notice,MODULE_DEP_TEST is $($(MODULE)_DEP_TEST))
 # allows us to build multiple projects and guarantee that they are
 # all built from the same source but their object files are distinct.
 
-MODULE_LIBS_TEST += $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test.a
+MODULE_LIBS_TEST += $(TARGET_STEM)/$(MODULE)_test.a
 
 $(call log_notice,MODULE_LIBS_TEST is $(MODULE_LIBS_TEST))
 
 # This module library depends on the list of objects in $($(MODULE)_OBJ_TEST)
 # which is handled in module_objects.mak
 
-$(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test.a: $($(MODULE)_OBJ_TEST)
+$(TARGET_STEM)/$(MODULE)_test.a: $($(MODULE)_OBJ_TEST)
 	@echo Building $@ from $?
 	@$(AR) -cr $@ $?
 
-$(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test: TEST_MAIN_OBJ := $(BUILD_PATH)/$(MODULE_PATH)/$($(MODULE)_test_main)
-$(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test: $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test.a $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE).a
+$(TARGET_STEM)/$(MODULE)_test: TEST_MAIN_OBJ := $(TARGET_STEM)/$($(MODULE)_test_main)
+$(TARGET_STEM)/$(MODULE)_test: $(TARGET_STEM)/$(MODULE)_test.a $(TARGET_STEM)/$(MODULE).a
 	@echo Building $@ from object $(TEST_MAIN_OBJ)
 	$(LD) -o $@ $(TEST_MAIN_OBJ) $? -lstdc++ -lgcov -lCppUTest -lCppUTestExt -lm 
 
@@ -61,7 +77,7 @@ $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test: $(BUILD_PATH)/$(MODULE_PATH)/$(MODU
 
 $(MODULE)_UNITTEST: TEST_MODULE := $(MODULE)
 $(MODULE)_UNITTEST: TEST_MODULE_PATH := $(MODULE_PATH)
-$(MODULE)_UNITTEST: $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test
+$(MODULE)_UNITTEST: $(TARGET_STEM)/$(MODULE)_test
     # Create the artifacts folders
 	mkdir -p $(ARTIFACTS_PATH)/$(TEST_MODULE_PATH)/coverage
 	mkdir -p $(ARTIFACTS_PATH)/$(TEST_MODULE_PATH)/unittest
