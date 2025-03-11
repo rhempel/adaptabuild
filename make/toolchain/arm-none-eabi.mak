@@ -20,7 +20,7 @@ CFLAGS += -mcpu=$(MCU_ARCH) -mthumb
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 
 ifeq (hard,$(MCU_FLOAT))
-    CFLAGS += -mfpu=fpv5-d16  -mfloat-abi=hard
+    CFLAGS += -mfpu=fpv5-d16 -mfloat-abi=hard
 else
     # Do nothing
 endif
@@ -32,14 +32,18 @@ LDFLAGS += --gc-sections
 LDFLAGS += -L /usr/lib/picolibc/arm-none-eabi/lib/$(MCU_LDPATH)
 LDFLAGS += -lc -lm
 
-LDFLAGS += -L /usr/lib/gcc/arm-none-eabi/10.3.1/$(MCU_LDPATH)
-LDFLAGS += -lgcc
+# TODO: This library path should be a symlink so that it's not
+#       version dependent - set this up when building the
+#       Docker image
+#
+GCC_VERSION ?= 10.3.1
 
+LDFLAGS += -L /usr/lib/gcc/arm-none-eabi/$(GCC_VERSION)/$(MCU_LDPATH)
+LDFLAGS += -lgcc
 
 # Choose one of these two for picolab - dummyhost for now ...
 #LDFLAGS +=  -lsemihost
 LDFLAGS +=  -ldummyhost
-
 
 # NOTE: These variables are not expanded at assignment time - they are
 #       deferred variables that are expanded when they are used!!!

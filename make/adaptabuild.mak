@@ -72,13 +72,13 @@ include $(ROOT_PATH)/adaptabuild_product.mak
 $(call log_info,PRODUCT is $(PRODUCT))
 
 BUILD_PATH := $(ROOT_PATH)/build/$(PRODUCT)/$(MCU)
-$(call log_notice,BUILD_PATH is $(BUILD_PATH))
+$(call log_info,BUILD_PATH is $(BUILD_PATH))
 
 ABS_BUILD_PATH := $(ABS_PATH)/build/$(PRODUCT)/$(MCU)
-$(call log_notice,ABS_BUILD_PATH is $(ABS_BUILD_PATH))
+$(call log_info,ABS_BUILD_PATH is $(ABS_BUILD_PATH))
 
 ARTIFACTS_PATH := $(ROOT_PATH)/artifacts/$(PRODUCT)/$(MCU)
-$(call log_notice,ARTIFACTS_PATH is $(ARTIFACTS_PATH))
+$(call log_info,ARTIFACTS_PATH is $(ARTIFACTS_PATH))
 
 # ----------------------------------------------------------------------------
 
@@ -95,18 +95,18 @@ $(call log_notice,ARTIFACTS_PATH is $(ARTIFACTS_PATH))
 #       things like unit testing, adding CRC or checksum, combining images
 #       or even loading an image onto a real target.
 
-all: foo bar product baz bif
+all: foo bar bootloader executable baz bif
 
 foo:
-    $(call log_info,adaptabuild foo)
+    $(call log_notice,adaptabuild foo)
 
 bar:
-    $(call log_info,adaptabuild bar)
+    $(call log_notice,adaptabuild bar)
 
 product: $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT)
 
 baz:
-    $(call log_info,adaptabuild baz)
+    $(call log_notice,adaptabuild baz)
 
 bif:
     $(call log_info,adaptabuild bif)
@@ -128,14 +128,37 @@ include $(SRC_PATH)/$(PRODUCT)/adaptabuild.mak
 
 $(call log_notice,TESTABLE_MODULES is $(TESTABLE_MODULES))
 
+# $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): LDFLAGS += -T$(LDSCRIPT)
+# $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): $(MODULE_LIBS) $(LDSCRIPT)
+
+#  $(call log_notice,adaptabuild bootloader)
+
+ifeq ($(BOOT_LINKER_SCRIPT),)
+    bootloader :
+else
+    bootloader : $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT).boot
+endif
+
+#    $(call log_notice,adaptabuild bootloader)
+
+BOOT_LDSCRIPT := $(SRC_PATH)/$(PRODUCT)/config/$(MCU)/$(BOOT_LINKER_SCRIPT)
+
+$(BUILD_PATH)/$(PRODUCT)/$(PRODUCT).boot: LDFLAGS += -T $(BOOT_LDSCRIPT)
+$(BUILD_PATH)/$(PRODUCT)/$(PRODUCT).boot: LDGROUP  =
+$(BUILD_PATH)/$(PRODUCT)/$(PRODUCT).boot: $(MODULE_LIBS) $(BOOT_LDSCRIPT)
+	$(LD) -g -o $@  $(SYSTEM_BOOT_OBJ) \
+              $(LDGROUP) $(LDFLAGS) $(LDMAP) --cref
+
 # ----------------------------------------------------------------------------
 # Default target for now:
 #
 # LDSCRIPT should be named based on the project and target cpu
 #
 # Simplify to path to the product source and product_main and executable
+executable : $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT)
+    $(call log_notice,adaptabuild executable)
 
-LDSCRIPT = $(SRC_PATH)/$(PRODUCT)/config/$(MCU)/$(MCU_LINKER_SCRIPT).ld
+LDSCRIPT := $(SRC_PATH)/$(PRODUCT)/config/$(MCU)/$(MCU_LINKER_SCRIPT)
 
 # TODO: Separate the linker options between host and embedded builds.
 #       Host builds use g++ which does not support --start-group
@@ -143,9 +166,11 @@ LDSCRIPT = $(SRC_PATH)/$(PRODUCT)/config/$(MCU)/$(MCU_LINKER_SCRIPT).ld
 
 $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): LDFLAGS += -T$(LDSCRIPT)
 $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): $(MODULE_LIBS) $(LDSCRIPT)
-	$(LD) -o $@ $(SYSTEM_STARTUP_OBJ) < \
-	      $(BUILD_PATH)/$(PRODUCT_MAIN).o \
-              $(LDGROUP) $(LDFLAGS) $(LDMAP) --cref
+	$(LD) -g -o $@.elf $(SYSTEM_STARTUP_OBJ) < \
+          $(BUILD_PATH)/$(PRODUCT_MAIN).o $(WEAK_OVERRIDES) \
+          $(LDGROUP) $(LDFLAGS) $(LDMAP) --cref
+	$(OBJCOPY) -O ihex $@.elf $@.hex
+	$(OBJCOPY) -O binary $@.elf $@.bin
 
 unittest : $(TESTABLE_MODULES)
 	@echo dkfjvndkfjvnkjn $(TESTABLE_MODULES)
