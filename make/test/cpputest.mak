@@ -89,7 +89,7 @@ $(MODULE)_UNITTEST: $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE)_test
 
     # Create the code coverage report
 	cd $(ARTIFACTS_PATH)/$(TEST_MODULE_PATH)/coverage && \
-		genhtml --rc genhtml_branch_coverage=1 -o coverage *.info && \
+		genhtml --rc genhtml_branch_coverage=1 *.info && \
 		rm *.info
 
 # ----------------------------------------------------------------------------
