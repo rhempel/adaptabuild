@@ -9,7 +9,7 @@
 # at build time
 
 $(info $(MODULE)_INCPATH is $($(MODULE)_INCPATH))
-$(MODULE)_INCPATH := $(addprefix -I $(ROOT_PATH)/$(SRC_PATH)/,$($(MODULE)_INCPATH))
+$(MODULE)_INCPATH := $(addprefix -I $(SRC_PATH)/,$($(MODULE)_INCPATH))
 $(info $(MODULE)_INCPATH is $($(MODULE)_INCPATH))
 
 $(MODULE)_CDEFS := $(addprefix -D ,$($(MODULE)_CDEFS) $(CDEFS))
@@ -45,10 +45,10 @@ $(info $(MODULE)_CFLAGS is $($(MODULE)_CFLAGS))
 # $(PREREQ_STEM)/foo.c
 #----------------------------------------------------------------------------
 
-TARGET_STEM := $(ROOT_PATH)/$(BUILD_PATH)/$(MODULE_PATH)
+TARGET_STEM := $(BUILD_PATH)/$(MODULE_PATH)
 # $(info TARGET_STEM is $(TARGET_STEM))
 
-PREREQ_STEM := $(ROOT_PATH)/$(SRC_PATH)/$(MODULE_PATH)
+PREREQ_STEM := $(SRC_PATH)/$(MODULE_PATH)
 # $(info PREREQ_STEM is $(PREREQ_STEM))
 
 # These are the target specific variables, and when the same target can

@@ -14,8 +14,7 @@ endif
 
 include $(ADAPTABUILD_PATH)/make/objects.mak
 
-$(MODULE)_OBJPATH := $(addprefix $(ROOT_PATH)/$(BUILD_PATH)/,$($(MODULE)_SRCPATH))
-
+$(MODULE)_OBJPATH := $(addprefix $(BUILD_PATH)/,$($(MODULE)_SRCPATH))
 $(info Forcing creation of: $($(MODULE)_OBJPATH))
 
 _ := $(shell $(MKPATH) $($(MODULE)_OBJPATH))
@@ -24,11 +23,10 @@ _ := $(shell $(MKPATH) $($(MODULE)_OBJPATH))
 # for the c and assembler files in this module.
 
 $(MODULE)_SRC :=
-$(MODULE)_SRC += $(addprefix $(ROOT_PATH)/$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))
-$(MODULE)_SRC += $(addprefix $(ROOT_PATH)/$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_ASM))
-
+$(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C))
+$(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_ASM))
 ifeq (unittest,$(MAKECMDGOALS))
-  $(MODULE)_SRC += $(addprefix $(ROOT_PATH)/$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_TEST))
+  $(MODULE)_SRC += $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_TEST))
 else
 endif
 
@@ -38,7 +36,7 @@ endif
 # This allows us to generate objects, libraries, and other artifacts
 # separately from the source tree.
 
-$(MODULE)_OBJ   := $(subst $(ROOT_PATH)/$(SRC_PATH),$(ROOT_PATH)/$(BUILD_PATH),\
+$(MODULE)_OBJ   := $(subst $(SRC_PATH),$(BUILD_PATH),\
                      $(subst .c,.o,\
                        $(subst .cpp,.o,\
                          $(subst .C,.o,\
@@ -55,9 +53,9 @@ $(MODULE)_DEP := $(subst .o,.d,$($(MODULE)_OBJ))
 # we need to add the correct dircetory prefixes and file type
 # suffixes
 
-$(MODULE)_SRC_OPT3 := $(addprefix $(ROOT_PATH)/$(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C_OPT3))
+$(MODULE)_SRC_OPT3 := $(addprefix $(SRC_PATH)/$(MODULE_PATH)/,$(SRC_C_OPT3))
 
-$(MODULE)_OBJ_OPT3 := $(subst $(ROOT_PATH)/$(SRC_PATH),$(ROOT_PATH)/$(BUILD_PATH),\
+$(MODULE)_OBJ_OPT3 := $(subst $(SRC_PATH),$(BUILD_PATH),\
                         $(subst .c,.o_opt3,$($(MODULE)_SRC_OPT3)))
 
 $(MODULE)_DEP_OPT3 := $(subst .o_opt3,.d,$($(MODULE)_OBJ_OPT3))
@@ -70,13 +68,13 @@ $(MODULE)_DEP_OPT3 := $(subst .o_opt3,.d,$($(MODULE)_OBJ_OPT3))
 # allows us to build multiple projects and guarantee that they are
 # all built from the same source but their object files are distinct.
 
-MODULE_LIBS += $(ROOT_PATH)/$(BUILD_PATH)/$(MODULE_PATH)/$(MODULE).a
+MODULE_LIBS += $(BUILD_PATH)/$(MODULE_PATH)/$(MODULE).a
 $(info MODULE_LIBS is: $(MODULE_LIBS))
 
 # This module library depends on the list of objects in $($(MODULE)_OBJ)
 # which is handled in module_objects.mak
 
-$(ROOT_PATH)/$(BUILD_PATH)/$(MODULE_PATH)/$(MODULE).a : $($(MODULE)_OBJ) $($(MODULE)_OBJ_OPT3)
+$(BUILD_PATH)/$(MODULE_PATH)/$(MODULE).a : $($(MODULE)_OBJ) $($(MODULE)_OBJ_OPT3)
 	@echo Building $@
 	@$(AR) -cr $@ $?
 
