@@ -15,20 +15,68 @@
 # This file may change over time as we continue to develop adaptabuild
 # ----------------------------------------------------------------------------
 
-include $(ADAPTABUILD_PATH)/make/log.mak
+$(call log_info,ROOT_PATH is $(ROOT_PATH))
+$(call log_info,ABS_PATH is $(ABS_PATH))
+$(call log_info,ADAPTABUILD_PATH is $(ADAPTABUILD_PATH))
+$(call log_info,SRC_PATH is $(SRC_PATH))
 
 MKPATH := mkdir -p
 
+# We use substitution using the wildcard (%) pattern to simplifying the
+# generated file and path names. Unfortunately the pattern matching
+# breaks down under some conditions, so we need to normalize the
+# path names as much as possible.
+#
+ABS_ROOT_PATH := $(abspath $(ROOT_PATH))
+ABS_SRC_PATH := $(abspath $(SRC_PATH))
+
+$(call log_info,absolute ROOT_PATH is $(abspath $(ABS_ROOT_PATH)))
+$(call log_info,absolute SRC_PATH is $(abspath $(ABS_SRC_PATH)))
+
+ifeq ($(ABS_ROOT_PATH),$(ABS_SRC_PATH))
+  SRC_PATH := .
+else
+  SRC_PATH := $(subst $(ABS_ROOT_PATH)/,,$(ABS_SRC_PATH))
+endif
+
+# ROOT_RELATIVE_SRC_PATH := $(subst $(ABS_ROOT_PATH)/,,$(ABS_SRC_PATH))
+# 
+# $(call log_info,root relative SRC_PATH is $(ROOT_RELATIVE_SRC_PATH))
+# 
+# # If the ROOT_RELATIVE_SRC_PATH is blank, set SRC_PATH to .
+# #
+# ifeq (,$(ROOT_RELATIVE_SRC_PATH))
+#   SRC_PATH := .
+# else
+#   SRC_PATH := ./$(ROOT_RELATIVE_SRC_PATH)
+# endif
+# 
+# #SRC_PATH := $(ROOT_RELATIVE_SRC_PATH)
+  
+$(call log_info,SRC_PATH is $(SRC_PATH))
+
+
+# The $(make_current_module_path module) is used to create the $(MODULE_PATH) variable
+# that has local file scope. From there the 
 # Note the use of = (not :=) to defer evaluation until it is called
 #
 # Note also that for this conditional to work, $(ROOT_PATH) must be defined before
 # the conditional is evaluated
 #
-ifeq (.,$(ROOT_PATH))
-  make_current_module_path = $(patsubst $(SRC_PATH)/%/,%,$(ROOT_PATH)/$(dir $(lastword $(MAKEFILE_LIST))))
-else
-  make_current_module_path = $(patsubst $(SRC_PATH)/%/,%,$(dir $(lastword $(MAKEFILE_LIST))))
-endif
+#ifeq (,$(SRC_PATH))
+#  make_current_module_path = $(patsubst $(SRC_PATH)/%/,%,$(ROOT_PATH)/$(dir $(lastword $(MAKEFILE_LIST))))
+#else
+#ifeq (./.,$(SRC_PATH))
+#  make_current_module_path = $(patsubst $(SRC_PATH)/%/,%,$(ROOT_PATH)/$(dir $(lastword $(MAKEFILE_LIST))))
+
+
+#ifeq (.,$(ROOT_PATH))
+#  make_current_module_path = $(patsubst $(SRC_PATH)/%/,%,$(ROOT_PATH)/$(dir $(lastword $(MAKEFILE_LIST))))
+#else
+#  make_current_module_path = $(patsubst $(SRC_PATH)/%/,%,$(dir $(lastword $(MAKEFILE_LIST))))
+#endif
+
+make_current_module_path = $(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
 
 # ----------------------------------------------------------------------------
 # The are GLOBAL variables that may be updated by included makefiles
@@ -49,8 +97,8 @@ TESTABLE_MODULES :=
 # ----------------------------------------------------------------------------
 # Do NOT move this include - it MUST be before the definition of MCU_MAK
 #
-SRC_PATH   := $(ROOT_PATH)/src
-$(call log_info,SRC_PATH is $(SRC_PATH))
+# SRC_PATH   := $(ROOT_PATH)/src
+# $(call log_info,SRC_PATH is $(SRC_PATH))
 
 # ----------------------------------------------------------------------------
 # Do NOT move this include - it MUST be after the definition of SRC_PATH
