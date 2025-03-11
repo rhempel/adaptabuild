@@ -45,7 +45,7 @@ ifeq ($(filter $(MCU),$(MCU_LIST)),$(MCU))
         MCU_VARIANT := STM32G061xx
     else ifeq ($(filter $(MCU),$(STM32G071xx_LIST)),$(MCU))
         MCU_VARIANT := STM32G071xx
-    else ifeq ($(filter $(MCU),$(STM32G081xx_LIST),$(MCU))
+    else ifeq ($(filter $(MCU),$(STM32G081xx_LIST),$(MCU)))
         MCU_VARIANT := STM32G081xx
     else ifeq ($(filter $(MCU),$(STM32G0B1xx_LIST)),$(MCU))
         MCU_VARIANT := STM32G0B1xx
@@ -56,6 +56,7 @@ ifeq ($(filter $(MCU),$(MCU_LIST)),$(MCU))
     endif
 
     MCU_FAMILY := stm32g0xx
+#   MCU_ARCH := cortex-m0plus -march=armv6s-m
     MCU_ARCH := cortex-m0
     MCU_LDPATH := thumb/v6-m/nofp
     MCU_LINKER_SCRIPT := linker_script.ld
@@ -65,4 +66,7 @@ ifeq ($(filter $(MCU),$(MCU_LIST)),$(MCU))
 	MCU_MAK += third_party/cmsis_core/adaptabuild_module.mak
 	MCU_MAK += third_party/cmsis_device_g0/adaptabuild_module.mak
 	MCU_MAK += third_party/stm32g0xx_hal_driver/adaptabuild_module.mak
+
+    MCU_INCPATH += third_party/cmsis_device_g0/Include
+    MCU_INCPATH += third_party/cmsis_core/Include
 endif

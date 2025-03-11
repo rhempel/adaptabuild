@@ -24,12 +24,14 @@ ifeq ($(filter $(MCU),$(MCU_LIST)),$(MCU))
         MCU_TARGET_REV := 0x4131
         MCU_LINKER_SCRIPT := max32690.ld
         MCU_STARTUP_FILE := startup_max32690.S
+        
+        MCU_CDEFS += CONFIG_SOC_MAX32690
     else
         $(error MCU_VARIANT not set for $(MCU))
     endif
 
     MCU_SYSTEM_FILE := 
-     BOOT_LINKER_SCRIPT :=
+    BOOT_LINKER_SCRIPT :=
 
     MCU_FAMILY := MAX32xxx
     MCU_ARCH := cortex-m4
@@ -40,4 +42,9 @@ ifeq ($(filter $(MCU),$(MCU_LIST)),$(MCU))
 
 	MCU_MAK += third_party/cmsis_core/adaptabuild_module.mak
 	MCU_MAK += third_party/hal_adi/adaptabuild_module.mak
+
+    MCU_INCPATH += third_party/cmsis_core/Include
+    MCU_INCPATH += third_party/hal_adi/MAX/Include
+    MCU_INCPATH += third_party/hal_adi/MAX/Libraries/CMSIS/Device/Include
+    MCU_INCPATH += third_party/hal_adi/MAX/Libraries/CMSIS/Device/Maxim/$(MCU_VARIANT)/Include
 endif

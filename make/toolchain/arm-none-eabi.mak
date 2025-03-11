@@ -27,7 +27,9 @@ endif
 
 CDEFS += $(MCU_VARIANT) MICRO_STM32_GCC
 
-LDFLAGS += --gc-sections
+# Leave this commented out or undefined when building bootloaders, otherwise
+# the bootloader elf ends up with no sections
+# LDFLAGS += --gc-sections
 
 LDFLAGS += -L /usr/lib/picolibc/arm-none-eabi/lib/$(MCU_LDPATH)
 LDFLAGS += -lc -lm
