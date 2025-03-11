@@ -31,8 +31,16 @@ ifeq (unittest,$(MAKECMDGOALS))
     CPPUTEST_HOME=/usr/include/CppUTest
 endif
 
+# ----------------------------------------------------------------------------
+# Check for any other MCU that we support
+# ----------------------------------------------------------------------------
+
 include $(ADAPTABUILD_PATH)/make/mcu/validate_stm32f0_mcu.mak
 include $(ADAPTABUILD_PATH)/make/mcu/validate_stm32h7_mcu.mak
+
+# ----------------------------------------------------------------------------
+# Bail out of we still don't know the MCU_ARCH or MCU_VARIANT
+# ----------------------------------------------------------------------------
 
 ifeq ($(MCU_ARCH),)
     $(error MCU_ARCH is undefined! Was MCU specified correctly?)

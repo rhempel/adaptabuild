@@ -77,6 +77,7 @@ ifeq ($(filter $(MCU),$(MCU_LIST)),$(MCU))
         $(error MCU_VARIANT not set for $(MCU))
     endif
 
+    MCU_FAMILY := stm32h7xx
     MCU_ARCH := cortex-m7
 
 	include $(ADAPTABUILD_PATH)/make/toolchain/arm-none-eabi.mak
