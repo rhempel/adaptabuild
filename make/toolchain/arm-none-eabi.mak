@@ -15,27 +15,31 @@ OBJCOPY = $(TOOLCHAIN_PREFIX)-objcopy
 #       level - this should only specify the minimum number of flags
 #       and options - same for MICRO_STM32_GCC
 
-CFLAGS += -g -mcpu=$(MCU_ARCH) -mtune=$(MCU_ARCH) -mthumb -ffunction-sections -fdata-sections -fno-strict-aliasing
-
-# -ffreestanding
+CFLAGS += -g -specs=picolibc.specs
+CFLAGS += -mcpu=$(MCU_ARCH) -mthumb
+CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 
 ifeq (hard,$(MCU_FLOAT))
     CFLAGS += -mfpu=fpv5-d16  -mfloat-abi=hard
-    LDFLAGS += -lgcc
 else
     # Do nothing
 endif
 
 CDEFS += $(MCU_VARIANT) MICRO_STM32_GCC
 
-# TODO: Move the actual libraries to be linked into the project level, but
-#       leave the search paths here
-#
-# TODO: Make the architectrure specific path (v5te) a variable that is set
-#       in the mcu verification process
-
 LDFLAGS += --gc-sections
-LDFLAGS += -L /usr/lib/gcc/arm-none-eabi/10.3.1/$(MCU_LDPATH) -lgcc
+
+LDFLAGS += -L /usr/lib/picolibc/arm-none-eabi/lib/$(MCU_LDPATH)
+LDFLAGS += -lc -lm
+
+LDFLAGS += -L /usr/lib/gcc/arm-none-eabi/10.3.1/$(MCU_LDPATH)
+LDFLAGS += -lgcc
+
+
+# Choose one of these two for picolab - dummyhost for now ...
+#LDFLAGS +=  -lsemihost
+LDFLAGS +=  -ldummyhost
+
 
 # NOTE: These variables are not expanded at assignment time - they are
 #       deferred variables that are expanded when they are used!!!
