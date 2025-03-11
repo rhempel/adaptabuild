@@ -28,6 +28,7 @@ include $(ADAPTABUILD_PATH)/make/mcu/validate_stm32g0_mcu.mak
 include $(ADAPTABUILD_PATH)/make/mcu/validate_stm32h7_mcu.mak
 include $(ADAPTABUILD_PATH)/make/mcu/validate_stm32l4_mcu.mak
 
+include $(ADAPTABUILD_PATH)/make/mcu/validate_nrf51_mcu.mak
 include $(ADAPTABUILD_PATH)/make/mcu/validate_nrf52_mcu.mak
 include $(ADAPTABUILD_PATH)/make/mcu/validate_pico2040_mcu.mak
 
