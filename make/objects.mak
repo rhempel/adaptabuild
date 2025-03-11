@@ -78,7 +78,6 @@ $(call log_debug,$(MODULE)_CFLAGS is $($(MODULE)_CFLAGS))
 TARGET_STEM := $(BUILD_PATH)/$(MODULE_PATH)
 $(call log_info,TARGET_STEM is $(TARGET_STEM))
 
-
 TARGET_STEM := $(call make_cwd_relative_path,$(abspath $(TARGET_STEM)))
 $(call log_info,adjusted TARGET_STEM is $(TARGET_STEM))
 
@@ -102,7 +101,6 @@ $(call log_info,adjusted TARGET_STEM is $(TARGET_STEM))
 #  TARGET_STEM := $(subst _$(ABS_CWD_PATH)/,,_$(TARGET_STEM))
 #endif
 #$(call log_info,TARGET_STEM is $(TARGET_STEM))
-
 
 PREREQ_STEM := $(SRC_PATH)/$(MODULE_PATH)
 $(call log_info,PREREQ_STEM is $(PREREQ_STEM))
@@ -137,7 +135,11 @@ $(call log_info,adjusted PREREQ_STEM is $(PREREQ_STEM))
 # here in the same block.
 #
 # Note that the target stem is ALWAYS the same: $(TARGET_STEM)/%.o
-
+#
+# For this to work, TARGET_STEM must be as long as possible and include the
+# $(MODULE)_PATH so that the match for the object sets the INCPATH, CDEFS, and
+# CFLAGS to match with the destination object!
+#
 $(TARGET_STEM)/%.o: INCPATH := $($(MODULE)_INCPATH)
 $(TARGET_STEM)/%.o: CDEFS   := $($(MODULE)_CDEFS)
 $(TARGET_STEM)/%.o: CFLAGS  := $($(MODULE)_CFLAGS)
