@@ -72,6 +72,12 @@ $(TARGET_STEM)/$(MODULE)_test: $(TARGET_STEM)/$(MODULE)_test.a $(TARGET_STEM)/$(
 	$(LD) -o $@ $(TEST_MAIN_OBJ) $? -lstdc++ -lgcov -lCppUTest -lCppUTestExt -lm 
 
 # # ----------------------------------------------------------------------------
+#
+# NOTE: This stackoverflow gives us a good way to combine coverage runs if we
+# want to.
+#
+# https://stackoverflow.com/a/35120225
+#
 
 .PHONY: $(MODULE)_UNITTEST
 
@@ -87,7 +93,7 @@ $(MODULE)_UNITTEST: $(TARGET_STEM)/$(MODULE)_test
 		lcov -z -d --rc branch_coverage=1 $(ABS_BUILD_PATH)/$(TEST_MODULE_PATH)/src
 
     # Run the test suite, ignoring errors (that's what the - is for) so that
-     # failing tests still genreate a report
+    # failing tests still genreate a report
 	- cd $(ARTIFACTS_PATH)/$(TEST_MODULE_PATH)/unittest && \
 		$(ABS_BUILD_PATH)/$(TEST_MODULE_PATH)/$(TEST_MODULE)_test -k $(TEST_MODULE) -ojunit
   
@@ -106,6 +112,6 @@ $(MODULE)_UNITTEST: $(TARGET_STEM)/$(MODULE)_test
     # Create the code coverage report
 	cd $(ARTIFACTS_PATH)/$(TEST_MODULE_PATH)/coverage && \
 		genhtml --rc branch_coverage=1 -o . *.info && \
-		rm *.info
+	    rm *.info
 
 # ----------------------------------------------------------------------------
