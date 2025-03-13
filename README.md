@@ -1,6 +1,6 @@
 # Introduction
 
-The ``adaptabuild`` project is a result of my almost 40 years of embedded
+The ``adaptabuild`` project is a result of almost 40 years of embedded
 systems development - it's not at all perfect, but is adaptable to many
 development models. Let's start with what ``adaptabuild`` is **not**.
 
@@ -11,13 +11,14 @@ development models. Let's start with what ``adaptabuild`` is **not**.
   on Windows, MacOS, and Linux - use  [CMake](https://cmake.org) for that.
 
 * It's not for building an embedded system for an incredibly wide variety
-  of taget processors - use [Zephyr]ihttps://docs.zephyrproject.org) for that.
+  of taget processors - use [Zephyr](https://docs.zephyrproject.org) for that.
 
-* It's not for building an embedd system that can run Python - use
-  [MicroPython](https://micropython.org/) for that. 
+* It's not for building an embedded system that can run Python - use
+  [MicroPython](https://micropython.org) for that. 
 
-By now you are thinking what IS ``adaptabuild' good for? It is a framework
-that encourages truly modular code by supporting:
+By now you are thinking what IS ``adaptabuild`` good for?
+
+It is a development model that encourages truly modular code by supporting:
 
 * Test Driven Development (TDD)
 
@@ -27,10 +28,10 @@ that encourages truly modular code by supporting:
 
 * A makefile-based build system that lets you ignore the ugliest parts of ``make``
 
-" A set of "guiding star" principles that simplify your ways of working
+ * A set of "guiding star" principles that simplify your ways of working
 
-The ``adaptabuild`` framework is suited to projects where you are building
-one or more products with a common platform of functionality, where there are
+The ``adaptabuild`` model is suited to projects where you are building
+one or more products with some level of commonality, where there are
 variants of the the same product with configurable features, and where there
 may be more than one target MCU for the same product.
 
@@ -48,16 +49,20 @@ action that build the docs :-)
 Using ``adaptabuild`` in your daily work has very few requirements - they are
 more like strong recommendations.
 
-## Docker
+## Container system compatible with Docker/Podman
 
 Modern embedded systems developers are a diverse group that use Linux,
 Windows, and MacOS machines. This can lead to situations where things
 work for one developer and not another, so we encourage teams to move
-to a Docker-based Linux environment. No matter what machine they are developing
-on, the Docker environment is the same, and it's easier to coordinate
-changes to the standard environment.
+to a containerized Linux environment compatible with Podman/Docker.
 
-For most of the projects that would use ``adaptabuild``, the gcc compiler will
+Podman can read Docker config files, so we will use Docker filenames to
+reduce duplicating instructions for each environment.
+
+No matter which host machine you develop on, the container environment is
+the same making it easier to coordinate changes to the standard environment.
+
+For most of the projects that would use ``adaptabuild``, the ``gcc`` compiler will
 support your target devices. If you are using IAR, the latest versions support
 running under Linux.
 
@@ -73,8 +78,8 @@ good development environment, and this is coming from a guy that insisted
 on using ``vi`` up until very recently.
 
 Once another developer showed me that it was possible to debug a micro that
-was attached to a J-Link debuuger running on a Docker image I was sold, and the
-great integration with Docker just put icing on the cake.
+was attached to a J-Link debuuger running on a container image I was sold, and the
+great integration with Docker/Podman just put icing on the cake.
 
 If you would rather not use a Microsoft supplied product, there is a truly
 open source build of the MIT-Licensed VSCode source called [VSCodium](https://vscodium.com/).
@@ -87,23 +92,25 @@ when helping other developers, or when they help you.
 ## Sphinx
 
 The ``Dockerfile`` template installs a ReST based documentation system called
-`Sphinx``. So far it's the most useful way I know of for documenting an embedded
+``Sphinx``. So far it's the most useful way I know of for documenting an embedded
 system. It supports a number of plugins like:
 
 * [Graphviz](https://graphviz.org/) - tree structures, state diagrams
-* [PlantUML](https://plantuml.com/) - seuence diagrams, state diagrams
+* [PlantUML](https://plantuml.com/) - sequence diagrams, state diagrams
+* [Hawkmoth](https://hawkmoth.readthedocs.io/) - documenting C code
 
-The nice benefit of storing docs (and tests and ...) in the same repository asi
+The nice benefit of storing docs (and tests and ...) in the same repository as
 code is that when you check out a version, you get the tests and docs as they were
 when that version was tagged.
 
 ## make
 
-The build system for `adaptabuild`` is based on ``make``. The good news is that
+The build system for ``adaptabuild`` is based on ``make``. The good news is that
 we have hidden all of the ugly bits of makefiles in a folder that you should
 almost never have to touch. Your submodules are just a list of files that
 make up a library - and ``adaptabuild`` manages creating and updating their
-dependencies based on standard rules.
+dependencies based on standard rules. You can easily customize module specific
+compiler flags and ``#define``s in one place for that module.
 
 The ``adaptabuild`` system also supports building docs, running tests, and creating
 code coverage metrics.
@@ -117,7 +124,7 @@ move on from bending my brain and yours around subtle shell quoting requirements
 and bizarre ways of handling basic things like lists.
 
 Use Python for even your simplest scripts - you will benefit from thinking of your
-Python scripts as building blocks so take advantage of the ability to write
+Python scripts as building blocks. Take advantage of the ability to write
 them to be run standalone or as an object in a larger context.
 
 Yes, it might seem like overkill for the first few scripts, but once you
