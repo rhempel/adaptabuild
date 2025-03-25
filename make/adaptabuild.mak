@@ -413,8 +413,12 @@ $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT).boot: $(MODULE_LIBS) $(BOOT_LDSCRIPT)
 executable : $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT)
     $(call log_notice,adaptabuild executable)
 
-LDSCRIPT_PATH := $(SRC_PATH)/$(PRODUCT)/config/$(MCU)
-LDSCRIPT := $(MCU_LINKER_SCRIPT)
+ifneq ($(strip $(LDSCRIPT_PATH)),)
+  LDSCRIPT_PATH := $(addprefix -L ,$(LDSCRIPT_PATH))
+endif
+
+LDSCRIPT := $(SRC_PATH)/$(PRODUCT)/config/$(MCU)/$(MCU_LINKER_SCRIPT)
+
 #LDSCRIPT := $(SRC_PATH)/$(PRODUCT)/config/$(MCU)/$(MCU_LINKER_SCRIPT)
 
 # TODO: Separate the linker options between host and embedded builds.
@@ -427,8 +431,8 @@ LDSCRIPT := $(MCU_LINKER_SCRIPT)
 
 #          $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT).boot.padded_checksummed.o \
 
-$(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): LDFLAGS += -L$(LDSCRIPT_PATH) -T$(LDSCRIPT) --gc-sections
-$(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): $(MODULE_LIBS) $(LDSCRIPT_PATH)/$(LDSCRIPT)
+$(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): LDFLAGS += $(LDSCRIPT_PATH) -T$(LDSCRIPT) --gc-sections
+$(BUILD_PATH)/$(PRODUCT)/$(PRODUCT): $(MODULE_LIBS) $(LDSCRIPT)
 	$(LD) -g -o $@.elf $(SYSTEM_STARTUP_OBJ) < \
           $(BUILD_PATH)/$(PRODUCT_MAIN).o \
           $(WEAK_OVERRIDES) \

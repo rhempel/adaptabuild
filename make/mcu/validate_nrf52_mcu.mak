@@ -17,6 +17,7 @@ ifeq ($(filter $(MCU),$(MCU_LIST)),$(MCU))
         MCU_VARIANT := NRF52832_XXAA
         MCU_STARTUP_FILE := gcc_startup_nrf52.S
         MCU_SYSTEM_FILE := system_nrf52.c
+        LDSCRIPT_PATH := $(SRC_PATH)/third_party/nrfx
         MCU_LINKER_SCRIPT := nrf52_xxaa.ld
         BOOT_LINKER_SCRIPT :=
     else
