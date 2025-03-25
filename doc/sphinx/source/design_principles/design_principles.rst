@@ -22,7 +22,7 @@ for the project and the team. If the tools change then they must support
 these values.
 
 Remember that |Product| is for *small* microcontrollers like the
-Cortex-M class or AVR devices that have gcc support and does not attempt
+Cortex-M class devices that have gcc support and does not attempt
 to play in the same space as Yocto or similar tools for embedded Linux.
 
 Simple now is better than complicated later
@@ -34,7 +34,7 @@ technical debt. In fact, this is partly true - but it's not necessarily a bad
 thing and here's why.
 
 When we begin a new project, there is a temptation to start with a grand vision
-and plan do "do it right this time". We reflect on the mistakes and poor
+and plan to "do it right this time". We reflect on the mistakes and poor
 assumptions of previous projects, or we are told that we need to plan better
 so that we don't miss the deadline this time.
 
@@ -58,7 +58,7 @@ Vendor Supplied HAL
   Clone the vendor's BSP or HAL as-is and incorporate it as a submodule of
   your project. Go one step further and make a local fork of the vendor's
   git repository for the BSP and create a new branch for your minimal
-  local changes. More on this when we discuss using git for trunk based
+  local changes. More on this when we discuss using ``git`` for trunk based
   development.
 
 Docker Containers
@@ -67,18 +67,18 @@ Docker Containers
   tools were made by a company that went out of business and only supported
   Windows 2000 - thankfully modern Cortex-M class all use JTAG and are well
   supported on Linux. For developers running Windows and MacOS we can now
-  take advantage of Docker images to create a unified build environment
+  take advantage of containerization to create a unified build environment
   that is exactly the same as your CI/CD pipeline will use. 
 
 Python As The Scripting Language
   In the past I advocated for using ``bash`` or a similar shell Language
-  for automating tasks, and that required installing Cygwin or MSYS2 on
+  for automating tasks, which often required installing Cygwin or MSYS2 on
   Windows machines or dealing with subtle differences in default shells.
   There is simply no excuse anymore for not using Python 3.x as your
   standard scripting language, as long as you follow some basic rules to
   ensure your scripts are portable. 
 
-GNU make As The Build System
+GNU ``make`` As The Build System
   There are plenty of alternatives to make out there such as CMake, Meson,
   and even Yocto. In some cases they are layers on top of make, so why
   not spend some effort creating a makefile system that simplifies the
@@ -99,8 +99,8 @@ options before hitting compile in your IDE, then you are probably doing
 things the hard way.
 
 In a modern development environment, you should be able to clone a repo
-that has *everything* needed to spin up a new Docker container that has
-a command lines to:
+that has *everything* needed to spin up a new container that the ability
+to:
 
 - Build any variant of your product
 - Build the documentation
@@ -108,8 +108,8 @@ a command lines to:
 - Build code coverage reports
 
 Your developers should be able to be confident that their unit tests cover
-at least 90% of the functionality of your product, and that manual testing
-can be minimized.
+at least 90% (and probably clser to 100% if you do TDD) of the functionality
+of your product, so that manual testing can be minimized.
 
 This is usually only possible when your design is truly decoupled into
 testable modules, and you are able to confidently say that a change in
@@ -124,7 +124,7 @@ Options
 
 When deciding on tools, architectures, or even next steps to take in a
 projects, look for ways to automate things as much as possible. The
-secion on simplification has many good ideas already, here are some
+section on simplification has many good ideas already, here are some
 for automation.
 
 VSCode (or VSCodium) as IDE
@@ -135,9 +135,9 @@ VSCode (or VSCodium) as IDE
   - It doesn't force you to use vendor specific project file
     structures that may not match your actual file structure.
   - It has built in support for git
-  - You can attach to a Docker container running your development
+  - You can attach to a container running your development
     environment
-  - You can debug Cortex-M micros in VSCode attached to a Docker
+  - You can debug Cortex-M micros in VSCode attached to a
     container (yes really!)
   - You can run your builds from a command-line or as tasks
 
@@ -149,7 +149,7 @@ GitLab pipelines or GitHub actions
 
 Python Scripts
   We have already discussed using Python as a scripting language, and
-  here we are advocating for building those scripts in such a way so
+  here we are advocating for building those scripts so
   that they can be used in multiple ways, this usually means creating
   proper Python classes that can be imported and re-used.
 
@@ -214,10 +214,10 @@ Sphinx for Documentation
   test plans, design guides, API descriptions as they were when the
   code was committed!
 
-  Take advantage of Sphinx' ability to leverage Doxygen to create
-  documentation from C code, which means you can put detailed design
-  notes right in the code and they automatically generate browsable
-  documentation when your project is built.
+  Take advantage of Sphinx' ability to leverage plugins like Hawkmoth
+  to create documentation from C code, which means you can put detailed
+  design notes right in the code and they automatically generate
+  browsable documentation when your project is built.
 
   No additional layers to an external documentation tool or repository
   means developers have much less friction to keeping docs up to date
@@ -232,8 +232,8 @@ Build trust and transparency by using small steps
 We have long since learned that most projects in the complex domain
 are difficult to estimate and plan accurately. Are we absolutely sure
 that the boards are going be delivered on that date? Is Kelly going
-to quit and find a new job? What if the other must-win projects needs
-help in 6 months and we lose two developers?
+to get a better opportunity and quit? What if the other must-win project
+needs help in 3 months and we lose two developers?
 
 These are all things that could happen, and just adding buffer to the
 schedule isn't good enough, because it will *always* get eaten up.
@@ -241,6 +241,11 @@ schedule isn't good enough, because it will *always* get eaten up.
 This is a common complaint about firmware teams - they often seem
 to take longer to get things done than planned, and when they fix
 last minute issues or add features, something else breaks.
+
+There is only one way to stop that complaint - and that is to build
+and deliver high-quality firmware on time. If you haven't been able
+to do that reliably, then you have to change _something_ or your
+next project will likely have the same difficulties.
 
 Options
 -------
@@ -268,7 +273,7 @@ Vendor Supplied Demo Boards
 
 Use GitHub or Gitlab to host your Documentation
   This document is written in ReStrucured Text and rendered in a
-  build pipeline using SPhinx. Your team should be able to
+  build pipeline using Sphinx. Your team should be able to
   automatically deploy these documents and make them browsable for
   anyone that needs to see what's going on.
 

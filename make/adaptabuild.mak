@@ -1,12 +1,9 @@
 # ----------------------------------------------------------------------------
-# adaptabuild.mak - top level adaptabuild compatible makefile for a project
+# adaptabuild.mak - top level adaptabuild system include
 #
-# Invoke the build system with:
-#
-# make -f path/to/adaptabuild_config.mak MCU=xxx PRODUCT=yyy target
-#
-# AVOID CHANGING THIS FILE - your project specific includes come from the
-#                            adaptabuild.project.mak file
+# AVOID CHANGING THIS FILE - Any build customizations needed for your
+#                            modules or product should be in the
+#                            adaptabuild_product.mak file
 #
 # The goal of adaptabuild is to hide most of the makefile complexity from
 # developers that don't want to learn the insides of yet another way to
@@ -28,16 +25,18 @@ PYTHON := python3
 #
 .SUFFIXES :
 
-.PHONY : all clean
+.PHONY : all bar bootloader executable product baz bif clean
 
-all: foo bar bootloader executable baz bif
+all: foo bar bootloader executable product bif baz
 
 # NOTE: THIS SHOULD BE EXTRACTED BY SPHINX/HAWKMOTH TO BE AUTOMATICALLY
 #       ADDED TO THE ADAPTABUILD DOCUMENTATION!
 #
+#       see: https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-literalinclude
+#
 # The adaptabuild system lets you run make for your project from anywhere
 # in the file system. That might not seem like a big deal but it can really
-# simplify your CI pipeline command structure.This means that:
+# simplify your CI pipeline command structure. This means that:
 #
 # cd path/to/your/project
 # make -f adptabuild_config.mak ....
@@ -51,7 +50,7 @@ all: foo bar bootloader executable baz bif
 # under some conditions. For reaons that will become clear later, these values
 # must NEVER evaluate to an empty string.
 #
-# The make program has built-in functions to handle path maanipulations, and
+# The make program has built-in functions to handle path manipulations, and
 # we wil take advantage of them together with the text manipulation functions
 # to generate clean path and filenames.
 #
@@ -61,14 +60,18 @@ all: foo bar bootloader executable baz bif
 # /home/you/path/to/project                             - "root" of the project to be build
 # /home/you/path/to/project/adaptabuild                 - submodule containing the adaptabuild system
 # /home/you/path/to/project/adaptabuild_root.mak        - top level adaptabuild makefile
+# /home/you/path/to/project/$(BUILD_PATH)               * location of ALL generated output
 # /home/you/path/to/project/$(SRC_PATH)                 * location of ALL source code
 # /home/you/path/to/project/$(SRC_PATH)/foo             - location of product "foo" source code
 # /home/you/path/to/project/$(SRC_PATH)/third-party/bar - location of third party module "baz" source code
-# /home/you/path/to/project/$(BUILD_PATH)               * location of ALL generated output
 #
 # The first thing adaptabuild does is create the ROOT_PATH variable. This is
-# defined as the path from where you are running make to the adaptabuild_root.mak
-# file. There are three possibilities:
+# defined as the path from where you are running make to the adaptabuild_config.mak
+# file. Assuming your project is located at:
+#
+# /home/you/path/to/project
+#
+# There are three possibilities:
 #
 # 1. Run from /home/you/path/to/project -> ROOT_PATH = .
 # 2. Run from /home/you                 -> ROOT_PATH = path/to/project/
@@ -79,38 +82,45 @@ all: foo bar bootloader executable baz bif
 #
 # For example, the BUILD_PATH is where we put all of the intermediate
 # object, dependency, and library files that go into building the final
-# product binary. I't a good idea to separate these intermediate files
-# from the source code so that it's easier to set up the `.gitignore` file.
+# product binary. Having a BUILD_PATH allows us to separate these
+# intermediate files from the source code so that it's easier to set up
+# the `.gitignore` file.
 #
-# BUILD_PATH should never be the same as ROOT_PATH, for example:
+# BUILD_PATH should never be the same as ROOT_PATH, and it should
+# be a separate path that will be created by adaptabuild. for example:
 #
 # BUILD_PATH := $(ROOT_PATH)/path/to/build
 #
-# Similarly, we can define the SRC_PATH like this:
+# Similarly, we can define the SRC_PATH like this, but unlike BUILD_PATH
+# is is allowable for SRC_PATH to be the same as ROOT_PATH.
 #
 # SRC_PATH := $(ROOT_PATH)/path/to/src
 #
 # SRC_PATH may be the same as ROOT_PATH if we are building a module for
-# an automated unit test independent of a project. The following forms
-# are all equivalent:
+# an automated unit test independent of a project, and the source for
+# that project lives at the ROOT_PATH. The following forms are all
+# equivalent:
 #
 # SRC_PATH := $(ROOT_PATH)
 # SRC_PATH := $(ROOT_PATH)/
 # SRC_PATH := $(ROOT_PATH)/.
 #
-# Finally, each of the modules or products in a project will have a path that is
-# relative to the SRC_PATH. This is very important because it allows us to create
-# module level source and include file lists that are _independent_ of where the
-# module lives in your project's SRC_PATH. 
+# Finally, each of the modules or products in a project will have a path
+# that is relative to the SRC_PATH. This is very important because it
+# allows us to create module level source and include file lists that
+# are _independent_ of where the module lives in your project's SRC_PATH. 
 #
-# One of the key design goals of the adaptabuild syste is that the make runs from one
-# directory - your current directory, and it can be anywhere in the filesystem.
+# One of the key design goals of the adaptabuild system is that the make
+# runs from one directory - your current directory, and it can be anywhere
+# in the filesystem.
 #
-# That means your module level makefiles don't care where they are located, adaptabuild
-# figures out all the paths to your source and build files.
+# That means your module level makefiles don't care where they are
+# located as long as they are below SRC_PATH - adaptabuild figures out
+# all the paths to your source and build files.
 #
-# Rather than continuously applying macros to clean up the paths, we take advantage
-# of make's stem rules to simplify our dependency patterns.
+# Rather than continuously applying macros to clean up the paths in
+# multiple locations, we can take advantage of make's stem rules to
+# simplify our dependency patterns.
 #
 # TARGET_STEM := $(BUILD_PATH)/$(MODULE_PATH)
 # PREREQ_STEM := $(SRC_PATH)/$(MODULE_PATH)
@@ -127,13 +137,16 @@ all: foo bar bootloader executable baz bif
 # $(BUILD_PATH)/module_A/util.c
 # $(BUILD_PATH)/module_B/util.c
 #
-# The % in the stem rules is long enough that adaptabuild will automatically
-# apply the correct module specific compiler definitions or flags that you
-# set up.
+# The % in the stem rules is just "util" and the stems are long enough that
+# adaptabuild will automatically apply the correct module specific compiler
+# definitions or flags that you set up.
 #
-# How does the $(MODULE_PATH) get set? The key is in the `adaptabuild_module.mak`
-# file that is at the root of your module. Here is an example for a module
-# called `motor`:
+# We will discuss how "module namespaces" are creates to ensure that each
+# module has its own set of overrides for the build process.
+#
+# How does the $(MODULE_PATH) get set? The key is in the
+# `adaptabuild_module.mak` file that is at the root of your module. Here
+# is an example `adaptabuild_module.mak` for a module called `motor`:
 #
 # MODULE := motor
 #
@@ -152,7 +165,7 @@ all: foo bar bootloader executable baz bif
 #
 # motor_SRC := core/speed.c main.c
 #
-# Now its time to transform the source file list to an object file list
+# Now it's time to transform the source file list to an object file list
 # for the stem rules. The simplified transformation is something like this:
 #
 # $(MODULE)_OBJ := $(subst .c,.o,$($(MODULE)_SRC)))
@@ -340,21 +353,23 @@ $(call log_notice,TESTABLE_MODULES is $(TESTABLE_MODULES))
 # TODO: Expand on these dummy routines and add pre and post build steps for
 #       things like unit testing, adding CRC or checksum, combining images
 #       or even loading an image onto a real target.
+#
+# These targets may be overridden at any time by another rule - it's one
+# really useful application of the double-colon rule feature in GNU make
 
-
-foo:
+foo::
     $(call log_notice,adaptabuild foo)
 
-bar:
+bar::
     $(call log_notice,adaptabuild bar)
 
-product: $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT)
+product:: $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT)
 
-baz:
+baz::
     $(call log_notice,adaptabuild baz)
 
-bif:
-    $(call log_info,adaptabuild bif)
+bif::
+    $(call log_notice,adaptabuild bif)
 
 # ----------------------------------------------------------------------------
 # Rules for building a bootloader (if needed)

@@ -14,10 +14,12 @@ endif
 
 include $(ADAPTABUILD_PATH)/make/objects.mak
 
-# # ----------------------------------------------------------------------------
-# THIS MUST BE AFTER THE objects.mak so that the PREREQ AND TARTGET stems are correct.
-# # Include the unit test framework makefile that works for this module
-# # if the target is cpputest
+# ----------------------------------------------------------------------------
+# CAN WE MOVE THIS AHEAD OF THE make/objects.mak ???
+#
+# THIS MUST BE AFTER THE objects.mak so that the PREREQ AND TARGET stems are correct.
+# Include the unit test framework makefile that works for this module
+# if the target is cpputest
 # 
 ifeq (unittest,$(MAKECMDGOALS))
   TESTABLE_MODULES += $(MODULE)_UNITTEST
@@ -34,16 +36,18 @@ endif
 BUILD_FOLDERS := $(addprefix $(MODULE_PATH)/,$(sort $(dir $(SRC_C) $(SRC_ASM) $(SRC_TEST))))
 BUILD_FOLDERS := $(addprefix $(BUILD_PATH)/,$(BUILD_FOLDERS))
 
-# Normalize the BUILD_FOLDERS
-
 $(call log_notice,BUILD_FOLDERS: $(BUILD_FOLDERS))
 
+# Normalize the BUILD_FOLDERS
+
 BUILD_FOLDERS := $(call make_cwd_relative_path,$(abspath $(BUILD_FOLDERS)))
+
 $(call log_notice,adjusted BUILD_FOLDERS: $(BUILD_FOLDERS))
 
 # Now we can create the build folders ...
 #
 $(call log_notice,Forcing creation of: $(BUILD_FOLDERS))
+
 _ := $(shell $(MKPATH) $(BUILD_FOLDERS))
 
 # Force a module specific source files variable to be empty
@@ -94,7 +98,6 @@ $(call log_notice,$(MODULE)_DEP is $($(MODULE)_DEP))
 # suffixes
 
 $(MODULE)_OBJ_OPT3 := $(subst .c,.o_opt3,$($(MODULE)_SRC_OPT3))
-
 $(MODULE)_DEP_OPT3 := $(subst .o_opt3,.d,$($(MODULE)_OBJ_OPT3))
 
 -include $(MODULE)_DEP_OPT3
@@ -106,13 +109,14 @@ $(MODULE)_DEP_OPT3 := $(subst .o_opt3,.d,$($(MODULE)_OBJ_OPT3))
 # all built from the same source but their object files are distinct.
 
 MODULE_LIBS += $(TARGET_STEM)/$(MODULE).a
+
 $(call log_debug,MODULE_LIBS is: $(MODULE_LIBS))
 
 # This module library depends on the list of objects in $($(MODULE)_OBJ)
 # which is handled in module_objects.mak
 
 $(TARGET_STEM)/$(MODULE).a : $($(MODULE)_OBJ) $($(MODULE)_OBJ_OPT3)
-	@echo Building $@ from $?
-	@$(AR) -cr $@ $?
+	$(call log_info,Building $@ from $?)
+	$(ECHO_COMMAND)$(AR) -cr $@ $?
 
 # ----------------------------------------------------------------------------

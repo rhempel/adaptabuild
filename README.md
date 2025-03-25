@@ -18,7 +18,8 @@ development models. Let's start with what ``adaptabuild`` is **not**.
 
 By now you are thinking what IS ``adaptabuild`` good for?
 
-It is a development model that encourages truly modular code by supporting:
+It is a development model that encourages truly modular code by providing
+an easy to set up environment that supports:
 
 * Test Driven Development (TDD)
 
@@ -28,7 +29,7 @@ It is a development model that encourages truly modular code by supporting:
 
 * A makefile-based build system that lets you ignore the ugliest parts of ``make``
 
- * A set of "guiding star" principles that simplify your ways of working
+ * A set of "guiding star" principles that may simplify your ways of working
 
 The ``adaptabuild`` model is suited to projects where you are building
 one or more products with some level of commonality, where there are
@@ -49,7 +50,7 @@ action that build the docs :-)
 Using ``adaptabuild`` in your daily work has very few requirements - they are
 more like strong recommendations.
 
-## Container system compatible with Docker/Podman
+## Container system compatible with Podman/Docker
 
 Modern embedded systems developers are a diverse group that use Linux,
 Windows, and MacOS machines. This can lead to situations where things
@@ -78,13 +79,14 @@ good development environment, and this is coming from a guy that insisted
 on using ``vi`` up until very recently.
 
 Once another developer showed me that it was possible to debug a micro that
-was attached to a J-Link debuuger running on a container image I was sold, and the
-great integration with Docker/Podman just put icing on the cake.
+was attached to a J-Link debuuger running on a container image I was
+sold, and the great integration with Podman/Docker just put icing on the cake.
 
 If you would rather not use a Microsoft supplied product, there is a truly
-open source build of the MIT-Licensed VSCode source called [VSCodium](https://vscodium.com/).
+open source build of the MIT-Licensed VSCode source called
+[VSCodium](https://vscodium.com/).
 
-And there's an almost-but-not-quite Vim simulator called
+For ``vi`` die-hards there's an almost-but-not-quite Vim simulator called
 [VSCodeVim](https://github.com/VSCodeVim/Vimcode), but if you are the
 only developer on the team using it, then be prepared for some finger trouble
 when helping other developers, or when they help you.
@@ -95,8 +97,8 @@ The ``Dockerfile`` template installs a ReST based documentation system called
 ``Sphinx``. So far it's the most useful way I know of for documenting an embedded
 system. It supports a number of plugins like:
 
-* [Graphviz](https://graphviz.org/) - tree structures, state diagrams
 * [PlantUML](https://plantuml.com/) - sequence diagrams, state diagrams
+* [Graphviz](https://graphviz.org/) - tree structures, state diagrams
 * [Hawkmoth](https://hawkmoth.readthedocs.io/) - documenting C code
 
 The nice benefit of storing docs (and tests and ...) in the same repository as
