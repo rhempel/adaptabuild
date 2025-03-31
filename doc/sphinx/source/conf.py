@@ -27,7 +27,10 @@ author = 'Ralph Hempel'
 # ones.
 extensions = [
     'sphinx_rtd_theme',
+    'sphinxcontrib.plantuml',
 ]
+
+plantuml = 'java -jar /opt/plantuml/plantuml.jar'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
