@@ -45,9 +45,12 @@ ifeq ($(filter $(MCU),$(MCU_LIST)),$(MCU))
     endif
 
     MCU_FAMILY := stm32g4xx
-    MCU_ARCH := cortex-m4
-    MCU_LDPATH := thumb/v7e-m+fp/hard
-    MCU_FLOAT := hard
+    MCU_ARCH := cortex-m4  -mfpu=fpv4-sp-d16
+#    MCU_LDPATH := thumb/v7e-m+fp/hard
+#    MCU_FLOAT := hard
+# -- NO FP FOR CMRX FOR NOW ...
+    MCU_LDPATH := thumb/v7-m/nofp
+    MCU_FLOAT := soft
     MCU_LINKER_SCRIPT := linker_script.ld
 
 	include $(ADAPTABUILD_PATH)/make/toolchain/arm-none-eabi.mak
