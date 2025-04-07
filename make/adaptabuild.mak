@@ -25,9 +25,38 @@ PYTHON := python3
 #
 .SUFFIXES :
 
-.PHONY : all bar bootloader executable product baz bif clean
+.NOTPARALLEL: # ensures that all deps are executed strictly in order
 
-all: foo bar bootloader executable product bif baz
+.PHONY : all foo bar bootloader pre_executable executable product baz bif clean
+
+all: foo bar bootloader pre_executable executable product baz bif
+
+# The default all: target can have multiple dependencies, and they are ALWAYS
+# evaluated left to right. This allows you to configure a pipeline of
+# tasks for your project.
+#
+# TODO: Expand on these dummy routines and add pre and post build steps for
+#       things like unit testing, adding CRC or checksum, combining images
+#       or even loading an image onto a real target.
+#
+# These targets may be expanded at any time by another rule - it's one
+# really useful application of the double-colon rule feature in GNU make.
+#
+
+foo::
+	$(call log_warning,adaptabuild foo)
+
+bar::
+	$(call log_warning,adaptabuild bar)
+
+pre_executable::
+	$(call log_warning,adaptabuild pre_executable)
+
+baz::
+	$(call log_warning,adaptabuild baz)
+
+bif::
+	$(call log_warning,adaptabuild bif)
 
 # NOTE: THIS SHOULD BE EXTRACTED BY SPHINX/HAWKMOTH TO BE AUTOMATICALLY
 #       ADDED TO THE ADAPTABUILD DOCUMENTATION!
@@ -346,32 +375,6 @@ include $(ROOT_PATH)/adaptabuild_artifacts.mak
 $(call log_notice,TESTABLE_MODULES is $(TESTABLE_MODULES))
 
 # ----------------------------------------------------------------------------
-# The default all: target can have multiple dependencies, and they are ALWAYS
-# evaluated left to right. This allows you to configure a pipeline of
-# tasks for your project.
-#
-# TODO: Expand on these dummy routines and add pre and post build steps for
-#       things like unit testing, adding CRC or checksum, combining images
-#       or even loading an image onto a real target.
-#
-# These targets may be overridden at any time by another rule - it's one
-# really useful application of the double-colon rule feature in GNU make
-
-foo::
-    $(call log_notice,adaptabuild foo)
-
-bar::
-    $(call log_notice,adaptabuild bar)
-
-product:: $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT)
-
-baz::
-    $(call log_notice,adaptabuild baz)
-
-bif::
-    $(call log_notice,adaptabuild bif)
-
-# ----------------------------------------------------------------------------
 # Rules for building a bootloader (if needed)
 #
 # NOTE: Improve the method of detecting if a bootloader is needed by
@@ -411,15 +414,17 @@ $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT).boot: $(MODULE_LIBS) $(BOOT_LDSCRIPT)
 # Simplify to path to the product source and product_main and executable
 #
 executable : $(BUILD_PATH)/$(PRODUCT)/$(PRODUCT)
-    $(call log_notice,adaptabuild executable)
+	$(call log_warning,adaptabuild executable)
 
-ifneq ($(strip $(LDSCRIPT_PATH)),)
-  LDSCRIPT_PATH := $(addprefix -L ,$(LDSCRIPT_PATH))
+ifneq ($(strip $(LDSCRIPT_PATH) $(CUSTOM_LINKER_SCRIPT_PATH)),)
+  LDSCRIPT_PATH := $(addprefix -L ,$(LDSCRIPT_PATH) $(CUSTOM_LINKER_SCRIPT_PATH))
 endif
 
-LDSCRIPT := $(SRC_PATH)/$(PRODUCT)/config/$(MCU)/$(MCU_LINKER_SCRIPT)
-
-#LDSCRIPT := $(SRC_PATH)/$(PRODUCT)/config/$(MCU)/$(MCU_LINKER_SCRIPT)
+ifneq ($(strip $(CUSTOM_LINKER_SCRIPT)),)
+  LDSCRIPT := $(CUSTOM_LINKER_SCRIPT_PATH)/$(CUSTOM_LINKER_SCRIPT)
+else
+  LDSCRIPT := $(SRC_PATH)/$(PRODUCT)/config/$(MCU)/$(MCU_LINKER_SCRIPT)
+endif
 
 # TODO: Separate the linker options between host and embedded builds.
 #       Host builds use g++ which does not support --start-group
@@ -445,6 +450,8 @@ unittest : $(TESTABLE_MODULES)
 
 # ----------------------------------------------------------------------------
 # .PHONY targets that provide some eye candy for the make log
+# ----------------------------------------------------------------------------
+
 
 #clean:
 #	rm -rf build/$(PRODUCT)
